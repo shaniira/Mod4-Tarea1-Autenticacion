@@ -1,0 +1,32 @@
+package com.andinaseguros.application.service.renovacion;
+
+import static com.andinaseguros.application.mapper.RenovacionResponseMapper.toResponse;
+
+import com.andinaseguros.application.dto.Responses.RenovacionResponse;
+import com.andinaseguros.domain.exception.RecursoNoEncontradoException;
+import com.andinaseguros.domain.model.PropuestaRenovacion;
+import com.andinaseguros.domain.repository.RenovacionRepository;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public class RechazarRenovacionUseCase {
+
+    private final RenovacionRepository renovacionRepository;
+
+    public RechazarRenovacionUseCase(RenovacionRepository renovacionRepository) {
+        this.renovacionRepository = renovacionRepository;
+    }
+
+    public RenovacionResponse execute(UUID renovacionId) {
+        PropuestaRenovacion propuesta =
+                renovacionRepository
+                        .buscarPorId(renovacionId)
+                        .orElseThrow(() -> new RecursoNoEncontradoException("Renovación"));
+
+        propuesta.rechazar(LocalDateTime.now());
+
+        PropuestaRenovacion propuestaGuardada = renovacionRepository.guardar(propuesta);
+
+        return toResponse(propuestaGuardada);
+    }
+}

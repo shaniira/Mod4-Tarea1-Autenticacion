@@ -1,0 +1,29 @@
+package com.andinaseguros.presentation.exception;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.andinaseguros.domain.exception.ReglaNegocioException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+class GlobalExceptionHandlerTest {
+    @Test
+    void invalidCredentialsReturnUnauthorizedInsteadOfUnprocessableEntity() {
+        var request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn("/api/auth/login");
+
+        var response =
+                new GlobalExceptionHandler()
+                        .domain(
+                                new ReglaNegocioException(
+                                        "CREDENCIALES_INVALIDAS", "Credenciales inválidas"),
+                                request);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(401, response.getBody().status());
+        assertEquals("CREDENCIALES_INVALIDAS", response.getBody().codigo());
+    }
+}

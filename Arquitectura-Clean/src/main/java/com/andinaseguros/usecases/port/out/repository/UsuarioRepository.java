@@ -1,0 +1,10 @@
+package com.andinaseguros.usecases.port.out.repository;
+
+import com.andinaseguros.entities.model.Usuario;
+import java.util.Optional;
+
+public interface UsuarioRepository {
+    Usuario guardar(Usuario usuario);
+
+    Optional<Usuario> buscarPorUsername(String username);
+}

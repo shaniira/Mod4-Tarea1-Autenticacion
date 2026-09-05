@@ -1,0 +1,49 @@
+name: andina-onion
+
+services:
+  mongodb:
+    image: mongo:8
+    container_name: andina-onion-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: andina_seguros_onion
+    ports:
+      - "27018:27017"
+    volumes:
+      - onion_mongo_data:/data/db
+    networks:
+      - onion_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  backend:
+    image: andina-seguros-onion:1.0.0
+    container_name: andina-onion-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/andina_seguros_onion
+      JWT_SECRET: cambia-esta-clave-en-produccion-debe-superar-32-caracteres
+      JWT_EXPIRATION_SECONDS: 28800
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+    ports:
+      - "8081:8080"
+    networks:
+      - onion_network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  onion_mongo_data:
+    name: andina_onion_mongo_data
+
+networks:
+  onion_network:
+    name: andina_onion_network

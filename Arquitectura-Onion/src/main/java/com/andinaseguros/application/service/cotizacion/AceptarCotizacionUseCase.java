@@ -1,0 +1,31 @@
+package com.andinaseguros.application.service.cotizacion;
+
+import static com.andinaseguros.application.mapper.CotizacionResponseMapper.toResponse;
+
+import com.andinaseguros.application.dto.Responses.CotizacionResponse;
+import com.andinaseguros.domain.exception.RecursoNoEncontradoException;
+import com.andinaseguros.domain.model.Cotizacion;
+import com.andinaseguros.domain.repository.CotizacionRepository;
+import java.util.UUID;
+
+public class AceptarCotizacionUseCase {
+
+    private final CotizacionRepository cotizacionRepository;
+
+    public AceptarCotizacionUseCase(CotizacionRepository cotizacionRepository) {
+        this.cotizacionRepository = cotizacionRepository;
+    }
+
+    public CotizacionResponse execute(UUID cotizacionId) {
+        Cotizacion cotizacion =
+                cotizacionRepository
+                        .buscarPorId(cotizacionId)
+                        .orElseThrow(() -> new RecursoNoEncontradoException("Cotización"));
+
+        cotizacion.aceptar();
+
+        Cotizacion cotizacionGuardada = cotizacionRepository.guardar(cotizacion);
+
+        return toResponse(cotizacionGuardada, null);
+    }
+}
