@@ -25,6 +25,7 @@ public class AutenticarUsuarioUseCase {
                 usuarios.buscarPorUsername(solicitud.username())
                         .orElseThrow(this::credencialesInvalidas);
         if (!usuario.isActivo()
+                || usuario.getPasswordHash() == null
                 || !passwordEncoder.coincide(solicitud.password(), usuario.getPasswordHash())) {
             throw credencialesInvalidas();
         }
