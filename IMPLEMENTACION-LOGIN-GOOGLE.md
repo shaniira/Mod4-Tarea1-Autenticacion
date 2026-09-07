@@ -95,7 +95,7 @@ public class Usuario {
 }
 ```
 
-> Cuidado: hoy `Usuario` se instancia en `RegistrarUsuarioUseCase`, `UsuarioMongoMapper.toDomain`, y en los tests (`AuthControllerTest`, `DemoCredentialsTest` si aplica). Al cambiar el constructor hay que actualizar **todos** los call sites — usar el compilador (`mvn -q compile`) para encontrarlos todos, no solo grep.
+> Cuidado: hoy `Usuario` se instancia en `RegistrarUsuarioUseCase`, `UsuarioMongoMapper.toDomain`, y en los tests (`AuthControllerTest`, `DemoCredentialsTest` si aplica). Al cambiar el constructor hay que actualizar **todos** los call sites — usar el compilador para encontrarlos todos, no solo grep. En este entorno de trabajo no hay Maven/JDK instalados localmente, solo Docker: la verificación de compilación se hace con `docker build` sobre `Arquitectura-Clean/Dockerfile` (que corre `mvn clean package` dentro del contenedor), no con `mvn -q compile` en el host.
 
 ### 4.2 `entities/enums/RolUsuario.java` — SIN CAMBIOS
 
@@ -378,7 +378,7 @@ El documento base propone, para el caso "existe una cuenta local con el mismo em
 - **Use Cases**: conocen únicamente `GoogleIdentityVerifierPort`, `UsuarioRepository`, `TokenGeneratorPort`, `IdGeneratorPort` — nunca `NimbusJwtDecoder`, `google-api-client` ni clases de Spring Security.
 - **Interface Adapters**: aquí vive `GoogleIdentityVerifierAdapter` (out/security/google), los cambios de Mongo, y el controller.
 - **Frameworks & Drivers**: `UseCaseConfig`, `SecurityConfig`, `application.yml`.
-- Tras implementar, correr `mvn test` — `CleanArchitectureTest` debe seguir en verde. Si alguna clase de Google/Nimbus termina importada en `usecases`, la prueba arquitectónica debe fallar y así detectarlo.
+- Tras implementar, correr `mvn test` (o, sin Maven/JDK local, `docker build` sobre `Arquitectura-Clean/Dockerfile`, que ejecuta `mvn clean package` dentro del contenedor) — `CleanArchitectureTest` debe seguir en verde. Si alguna clase de Google/Nimbus termina importada en `usecases`, la prueba arquitectónica debe fallar y así detectarlo.
 
 ---
 
@@ -394,7 +394,7 @@ El documento base propone, para el caso "existe una cuenta local con el mismo em
 
 **Backend — `GoogleIdentityVerifierAdapter`:** firma correcta/incorrecta, `aud` correcto/incorrecto, `iss` correcto/incorrecto, token vigente/expirado, `sub`/`email` presentes — usando claves de prueba controladas, no llamadas reales a Google.
 
-**Backend — regresión:** `AuthControllerTest` y `mvn test` completo deben seguir pasando; agregar caso para `/api/auth/google`.
+**Backend — regresión:** `AuthControllerTest` y `mvn test` completo deben seguir pasando; agregar caso para `/api/auth/google`. Sin Maven/JDK local, esto se verifica con `docker build` sobre `Arquitectura-Clean/Dockerfile` (el build de la imagen falla si algún test falla).
 
 **Frontend:** probar manualmente el botón de Google en `http://localhost:5173` contra un `GOOGLE_CLIENT_ID` real de pruebas, verificar que el JWT resultante funcione igual que el login local contra un endpoint protegido, y que el login local (`admin`/`Admin123*`) siga funcionando sin regresión.
 
@@ -409,7 +409,7 @@ El documento base propone, para el caso "existe una cuenta local con el mismo em
 5. Backend: `GoogleLoginRequestModel`, `AutenticarConGoogleUseCase` + tests.
 6. Backend: `GoogleLoginRequest`, `RestRequestMapper`, `AuthController`, `UseCaseConfig`, `application.yml`.
 7. Backend: ajustar `AutenticarUsuarioUseCase` para `passwordHash == null`.
-8. Backend: `mvn test` completo (incluye `CleanArchitectureTest`).
+8. Backend: build de la imagen Docker (`docker build` sobre `Arquitectura-Clean/Dockerfile`), que corre `mvn clean package` — compilación + suite de tests completa + `CleanArchitectureTest` — dentro del contenedor. No requiere Maven/JDK instalados en la máquina host (entorno de trabajo real: solo Docker disponible, sin Maven local).
 9. Google Cloud Console: crear proyecto, branding, cliente OAuth, obtener `Client ID`.
 10. Frontend: `.env`, `index.html`, tipos, `stores/auth.ts`, `LoginView.vue`, mensajes de error en `api.ts`.
 11. Prueba end-to-end manual: login Google real → endpoint protegido con el JWT resultante → regresión de login local.
@@ -427,5 +427,5 @@ El documento base propone, para el caso "existe una cuenta local con el mismo em
 - [ ] El JWT emitido por el flujo Google funciona sin cambios en `JwtAuthenticationFilter` y con `@PreAuthorize` existente.
 - [ ] Google no es consultado en ningún endpoint fuera del login.
 - [ ] Ningún `idToken` ni `Client ID/Secret` aparece en logs.
-- [ ] `mvn test` y `CleanArchitectureTest` pasan.
+- [ ] `mvn test` y `CleanArchitectureTest` pasan (verificado en este proyecto vía `docker build`, al no contar con Maven/JDK local).
 - [ ] `vue-tsc -b` (build del frontend) pasa sin errores de tipos por el nuevo código.
