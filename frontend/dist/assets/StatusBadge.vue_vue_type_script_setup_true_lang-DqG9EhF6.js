@@ -1,0 +1,1 @@
+import{d as a,c as s,n as l,t,j as n}from"./index-7D_eev-_.js";const p=a({__name:"StatusBadge",props:{value:{}},setup(e){return(o,r)=>(n(),s("span",{class:l(["badge",e.value.toLowerCase().replaceAll("_","-")])},t(e.value.replaceAll("_"," ")),3))}});export{p as _};

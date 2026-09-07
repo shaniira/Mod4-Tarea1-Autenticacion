@@ -125,7 +125,7 @@ onMounted(async () => {
       </div>
 
       <div class="panel dark-panel">
-        <span class="eyebrow">Arquitectura Onion</span>
+        <span class="eyebrow">Arquitectura Clean</span>
         <h3>El dominio mantiene el control</h3>
         <p>
           La interfaz consume casos de uso sin conocer repositorios ni detalles

@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import org.slf4j.*;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +68,20 @@ public class GlobalExceptionHandler {
                                 "La solicitud contiene datos inválidos",
                                 request.getRequestURI(),
                                 fieldErrors));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ApiError> accessDenied(
+            AccessDeniedException exception, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(
+                        new ApiError(
+                                OffsetDateTime.now(),
+                                403,
+                                "ACCESO_DENEGADO",
+                                "No tienes permisos para realizar esta acción",
+                                request.getRequestURI(),
+                                Map.of()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
