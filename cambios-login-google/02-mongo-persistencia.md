@@ -70,18 +70,22 @@ public Optional<Usuario> buscarPorGoogleSubject(String x) {
 ### 5. `interfaceadapters/out/persistence/mongodb/mapper/UsuarioMongoMapper.java` — corrección del bug documentado
 
 **Antes** (`toDocument`):
+
 ```java
 d.email = x.getUsername().contains("@") ? x.getUsername() : null;
 ```
+
 Esto **ignoraba** cualquier valor real de `email` del dominio y lo adivinaba a partir de `username`. Ahora que `Usuario` tiene su propio campo `email` (paso 1), esa inferencia ya no tiene sentido y quedaba inconsistente.
 
 **Después:**
+
 ```java
 d.email = x.getEmail();
 d.googleSubject = x.getGoogleSubject();
 ```
 
 **`toDomain`** ahora lee `d.googleSubject` en vez del `null` fijo que se dejó temporalmente en el paso 1:
+
 ```diff
   return new Usuario(
           UUID.fromString(d.id),
@@ -121,26 +125,15 @@ Sin este cambio, el índice de `googleSubject` habría dependido únicamente de 
 
 ## Impacto
 
-| Área | Impacto |
-|---|---|
-| `usecases/port/out/repository/UsuarioRepository` | Puerto ampliado con 2 métodos nuevos. Cualquier futura implementación (o mock estricto) del puerto deberá cubrirlos. |
-| Mongo (`UsuarioDocument`) | Nuevo campo `googleSubject`, índice único+sparse — no afecta documentos existentes (sparse permite ausencia del campo). |
-| `UsuarioMongoMapper.toDocument` | **Cambio de comportamiento real:** antes se perdía cualquier `email` explícito del dominio (no existía en el dominio) y se inventaba desde `username`; ahora se persiste el `email` real del dominio. Como en el paso 1 `RegistrarUsuarioUseCase` sigue pasando `email = null`, el comportamiento observable de `/register` **no cambia todavía** (seguirá guardando `email = null` para altas locales) hasta que se decida capturar email en el registro local. |
-| Índices Mongo | Se agrega `googleSubject` a la creación explícita de índices, igual patrón que `email`. |
-| ArchUnit / Clean Architecture | Sin impacto: los nuevos métodos del puerto son interfaces puras; la implementación queda en `interfaceadapters`. |
-| Casos de uso existentes (`AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase`, filtro JWT) | Sin cambios — no usan los métodos nuevos todavía (se consumirán recién en el paso 5, `AutenticarConGoogleUseCase`). |
+| Área                                                                                           | Impacto                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `usecases/port/out/repository/UsuarioRepository`                                              | Puerto ampliado con 2 métodos nuevos. Cualquier futura implementación (o mock estricto) del puerto deberá cubrirlos.                                                                                                                                                                                                                                                                                                                                                                         |
+| Mongo (`UsuarioDocument`)                                                                     | Nuevo campo`googleSubject`, índice único+sparse — no afecta documentos existentes (sparse permite ausencia del campo).                                                                                                                                                                                                                                                                                                                                                                     |
+| `UsuarioMongoMapper.toDocument`                                                               | **Cambio de comportamiento real:** antes se perdía cualquier `email` explícito del dominio (no existía en el dominio) y se inventaba desde `username`; ahora se persiste el `email` real del dominio. Como en el paso 1 `RegistrarUsuarioUseCase` sigue pasando `email = null`, el comportamiento observable de `/register` **no cambia todavía** (seguirá guardando `email = null` para altas locales) hasta que se decida capturar email en el registro local. |
+| Índices Mongo                                                                                  | Se agrega`googleSubject` a la creación explícita de índices, igual patrón que `email`.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ArchUnit / Clean Architecture                                                                   | Sin impacto: los nuevos métodos del puerto son interfaces puras; la implementación queda en`interfaceadapters`.                                                                                                                                                                                                                                                                                                                                                                             |
+| Casos de uso existentes (`AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase`, filtro JWT) | Sin cambios — no usan los métodos nuevos todavía (se consumirán recién en el paso 5,`AutenticarConGoogleUseCase`).                                                                                                                                                                                                                                                                                                                                                                       |
 
----
-
-## Verificación
-
-⚠️ Igual que en el paso 1, **no hay Maven/Java disponibles en este entorno** para correr `mvn compile`/`mvn test`. Verificación hecha manualmente:
-
-- Todos los métodos añadidos al puerto (`UsuarioRepository`) tienen implementación correspondiente en el único adaptador que lo implementa.
-- Los nombres de método en `SpringDataUsuarioMongoRepository` (`findByEmail`, `findByGoogleSubject`) siguen la convención de Spring Data y coinciden exactamente con los nombres de campo de `UsuarioDocument` (`email`, `googleSubject`).
-- El mapper usa getters que ya existen en `Usuario` desde el paso 1 (`getEmail()`, `getGoogleSubject()`).
-
-**Pendiente:** correr `mvn -q compile` en un entorno con JDK/Maven para confirmar antes de continuar.
 
 ---
 
