@@ -7,4 +7,8 @@ public interface UsuarioRepository {
     Usuario guardar(Usuario usuario);
 
     Optional<Usuario> buscarPorUsername(String username);
+
+    Optional<Usuario> buscarPorEmail(String email);
+
+    Optional<Usuario> buscarPorGoogleSubject(String googleSubject);
 }

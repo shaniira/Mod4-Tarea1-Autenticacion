@@ -27,7 +27,9 @@ public class RegistrarUsuarioUseCase {
                 new Usuario(
                         ids.generar(),
                         solicitud.username(),
+                        null,
                         passwordEncoder.codificar(solicitud.password()),
+                        null,
                         solicitud.rol(),
                         true));
     }

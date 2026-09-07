@@ -16,6 +16,10 @@ public class UsuarioDocument {
     public String email;
 
     public String passwordHash;
+
+    @Indexed(unique = true, sparse = true)
+    public String googleSubject;
+
     public RolUsuario rol;
     public boolean activo;
 }

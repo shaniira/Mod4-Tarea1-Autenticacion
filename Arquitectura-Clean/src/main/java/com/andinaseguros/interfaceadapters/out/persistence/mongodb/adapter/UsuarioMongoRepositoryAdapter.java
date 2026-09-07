@@ -24,4 +24,12 @@ public class UsuarioMongoRepositoryAdapter implements UsuarioRepository {
     public Optional<Usuario> buscarPorUsername(String x) {
         return repo.findByUsername(x).map(mapper::toDomain);
     }
+
+    public Optional<Usuario> buscarPorEmail(String x) {
+        return repo.findByEmail(x).map(mapper::toDomain);
+    }
+
+    public Optional<Usuario> buscarPorGoogleSubject(String x) {
+        return repo.findByGoogleSubject(x).map(mapper::toDomain);
+    }
 }

@@ -6,14 +6,25 @@ import java.util.UUID;
 public class Usuario {
     private final UUID id;
     private final String username;
+    private final String email;
     private final String passwordHash;
+    private final String googleSubject;
     private final RolUsuario rol;
     private final boolean activo;
 
-    public Usuario(UUID id, String username, String passwordHash, RolUsuario rol, boolean activo) {
+    public Usuario(
+            UUID id,
+            String username,
+            String email,
+            String passwordHash,
+            String googleSubject,
+            RolUsuario rol,
+            boolean activo) {
         this.id = id;
         this.username = username;
+        this.email = email;
         this.passwordHash = passwordHash;
+        this.googleSubject = googleSubject;
         this.rol = rol;
         this.activo = activo;
     }
@@ -26,8 +37,16 @@ public class Usuario {
         return username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public String getGoogleSubject() {
+        return googleSubject;
     }
 
     public RolUsuario getRol() {

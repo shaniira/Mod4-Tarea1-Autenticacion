@@ -320,7 +320,9 @@ public class MongoDemoDataInitializer implements ApplicationRunner {
                     new Usuario(
                             UUID.fromString("00000000-0000-0000-0000-000000000001"),
                             "admin",
+                            null,
                             passwordEncoder.codificar("Admin123*"),
+                            null,
                             RolUsuario.ADMIN,
                             true));
         }

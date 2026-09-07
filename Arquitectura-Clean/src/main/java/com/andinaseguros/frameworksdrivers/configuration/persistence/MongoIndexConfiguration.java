@@ -29,6 +29,13 @@ public class MongoIndexConfiguration implements ApplicationRunner {
                                 .named("email")
                                 .unique()
                                 .sparse());
+        mongo.indexOps(UsuarioDocument.class)
+                .ensureIndex(
+                        new Index()
+                                .on("googleSubject", Sort.Direction.ASC)
+                                .named("googleSubject")
+                                .unique()
+                                .sparse());
     }
 
     private void unique(Class<?> type, String field) {
