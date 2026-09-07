@@ -66,18 +66,13 @@ También se confirmó que ninguna de las dos clases importa nada fuera de `java.
 
 ## Impacto
 
-| Área | Impacto |
-|---|---|
-| `usecases` | Dos clases nuevas, sin modificar ninguna existente. Ningún archivo previo cambia en este paso. |
-| Casos de uso actuales (`AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase`) | Ninguno — no referencian estas clases. |
-| ArchUnit | Cumple `output_ports_are_interfaces` (verificado manualmente contra la regla). |
-| Compilación | Bajo riesgo: son archivos nuevos y autocontenidos, no tocan código existente. |
+| Área                                                                             | Impacto                                                                                         |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `usecases`                                                                      | Dos clases nuevas, sin modificar ninguna existente. Ningún archivo previo cambia en este paso. |
+| Casos de uso actuales (`AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase`) | Ninguno — no referencian estas clases.                                                         |
+| ArchUnit                                                                          | Cumple`output_ports_are_interfaces` (verificado manualmente contra la regla).                 |
+| Compilación                                                                      | Bajo riesgo: son archivos nuevos y autocontenidos, no tocan código existente.                  |
 
----
-
-## Verificación
-
-⚠️ Sin Maven/Java en este entorno, no se pudo compilar. Revisión manual: sintaxis de récord/interfaz estándar de Java 21 (mismo patrón que archivos ya existentes y funcionando en el proyecto), sin typos en el paquete (`com.andinaseguros.usecases.port.out.security`, igual que sus vecinos).
 
 ---
 
