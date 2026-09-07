@@ -26,7 +26,11 @@ public class GlobalExceptionHandler {
         HttpStatus status =
                 switch (exception.getCodigo()) {
                     case "RECURSO_NO_ENCONTRADO" -> HttpStatus.NOT_FOUND;
-                    case "CREDENCIALES_INVALIDAS" -> HttpStatus.UNAUTHORIZED;
+                    case "CREDENCIALES_INVALIDAS",
+                            "GOOGLE_TOKEN_INVALIDO",
+                            "GOOGLE_EMAIL_NO_VERIFICADO",
+                            "USUARIO_INACTIVO" -> HttpStatus.UNAUTHORIZED;
+                    case "CUENTA_EXISTENTE_REQUIERE_VINCULACION" -> HttpStatus.CONFLICT;
                     default -> HttpStatus.UNPROCESSABLE_ENTITY;
                 };
 

@@ -43,4 +43,8 @@ public final class RestRequestMapper {
     public static CrearUsuarioRequestModel toCore(CrearUsuarioRequest value) {
         return new CrearUsuarioRequestModel(value.username(), value.password(), value.rol());
     }
+
+    public static GoogleLoginRequestModel toCore(GoogleLoginRequest value) {
+        return new GoogleLoginRequestModel(value.idToken());
+    }
 }

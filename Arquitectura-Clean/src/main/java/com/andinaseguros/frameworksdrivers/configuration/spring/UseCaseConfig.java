@@ -2,6 +2,7 @@ package com.andinaseguros.frameworksdrivers.configuration.spring;
 
 import com.andinaseguros.usecases.port.in.ConsultarInformacionVehiculoUseCase;
 import com.andinaseguros.usecases.service.ConsultarInformacionVehiculoService;
+import com.andinaseguros.usecases.service.auth.AutenticarConGoogleUseCase;
 import com.andinaseguros.usecases.service.auth.AutenticarUsuarioUseCase;
 import com.andinaseguros.usecases.service.auth.RegistrarUsuarioUseCase;
 import com.andinaseguros.usecases.service.cliente.CrearClienteUseCase;
@@ -48,6 +49,7 @@ import com.andinaseguros.interfaceadapters.out.id.UuidGeneratorAdapter;
 import com.andinaseguros.interfaceadapters.out.notification.*;
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.adapter.ClienteContactMongoAdapter;
 import com.andinaseguros.interfaceadapters.out.security.*;
+import com.andinaseguros.interfaceadapters.out.security.google.GoogleIdentityVerifierAdapter;
 import com.andinaseguros.interfaceadapters.out.time.SystemClockAdapter;
 import com.andinaseguros.usecases.port.out.contact.ClienteContactPort;
 import com.andinaseguros.usecases.port.out.event.DomainEventPublisherPort;
@@ -64,6 +66,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -105,6 +109,25 @@ public class UseCaseConfig {
             PasswordEncoderPort passwordEncoder,
             TokenGeneratorPort tokenGenerator) {
         return new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator);
+    }
+
+    @Bean
+    GoogleIdentityVerifierPort googleIdentityVerifierPort(
+            @Value("${app.google.client-id}") String clientId,
+            @Value("${app.google.issuer:https://accounts.google.com}") String issuer) {
+        JwtDecoder jwtDecoder =
+                NimbusJwtDecoder.withJwkSetUri(GoogleIdentityVerifierAdapter.GOOGLE_JWK_SET_URI)
+                        .build();
+        return new GoogleIdentityVerifierAdapter(jwtDecoder, clientId, issuer);
+    }
+
+    @Bean
+    AutenticarConGoogleUseCase autenticarConGoogle(
+            UsuarioRepository usuarios,
+            GoogleIdentityVerifierPort googleIdentityVerifier,
+            TokenGeneratorPort tokenGenerator,
+            IdGeneratorPort ids) {
+        return new AutenticarConGoogleUseCase(usuarios, googleIdentityVerifier, tokenGenerator, ids);
     }
 
     @Bean

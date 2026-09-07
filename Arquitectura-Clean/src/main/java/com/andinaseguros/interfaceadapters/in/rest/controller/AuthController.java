@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final RegistrarUsuarioUseCase registrarUsuario;
     private final AutenticarUsuarioUseCase autenticarUsuario;
+    private final AutenticarConGoogleUseCase autenticarConGoogle;
 
     public AuthController(
-            RegistrarUsuarioUseCase registrarUsuario, AutenticarUsuarioUseCase autenticarUsuario) {
+            RegistrarUsuarioUseCase registrarUsuario,
+            AutenticarUsuarioUseCase autenticarUsuario,
+            AutenticarConGoogleUseCase autenticarConGoogle) {
         this.registrarUsuario = registrarUsuario;
         this.autenticarUsuario = autenticarUsuario;
+        this.autenticarConGoogle = autenticarConGoogle;
     }
 
     @PostMapping("/register")
@@ -29,5 +33,10 @@ public class AuthController {
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest solicitud) {
         return autenticarUsuario.execute(toCore(solicitud));
+    }
+
+    @PostMapping("/google")
+    public TokenResponse google(@Valid @RequestBody GoogleLoginRequest solicitud) {
+        return autenticarConGoogle.execute(toCore(solicitud));
     }
 }

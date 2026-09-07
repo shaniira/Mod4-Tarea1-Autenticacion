@@ -48,14 +48,14 @@ Los 4 códigos de error (`GOOGLE_TOKEN_INVALIDO`, `GOOGLE_EMAIL_NO_VERIFICADO`, 
 
 6 casos, con mocks de los 4 puertos (Mockito) — igual estilo que `EmitirPolizaUseCaseTest`:
 
-| Test | Escenario | Resultado esperado |
-|---|---|---|
-| `rechazaUnTokenDeGoogleInvalido` | `verifier.verificar(...)` lanza `RuntimeException` | `ReglaNegocioException` código `GOOGLE_TOKEN_INVALIDO`; ni `usuarios` ni `tokenGenerator` se tocan |
-| `rechazaUnEmailDeGoogleNoVerificado` | `emailVerified = false` | `ReglaNegocioException` código `GOOGLE_EMAIL_NO_VERIFICADO` |
-| `autenticaUnUsuarioGoogleExistenteYActivo` | `buscarPorGoogleSubject` devuelve un usuario activo | `TokenResponse` con el JWT generado; **no** se llama a `guardar(...)` |
-| `rechazaUnUsuarioGoogleExistenteInactivo` | usuario encontrado por `googleSubject` con `activo=false` | `ReglaNegocioException` código `USUARIO_INACTIVO`; `tokenGenerator` no se toca |
-| `creaUnUsuarioNuevoConRolClienteCuandoNoExisteNiPorSubNiPorEmail` | ni `googleSubject` ni `email` existen | se captura el `Usuario` pasado a `guardar(...)` y se verifica: `id` generado, `username=email`, `email`, `googleSubject`, `passwordHash=null`, **`rol=CLIENTE`** y `activo=true` |
-| `rechazaCuandoYaExisteUnaCuentaLocalConElMismoEmailSinGoogleVinculado` | `googleSubject` no existe pero `email` sí (cuenta local con `passwordHash`) | `ReglaNegocioException` código `CUENTA_EXISTENTE_REQUIERE_VINCULACION`; no se guarda ni se genera token |
+| Test                                                                     | Escenario                                                                          | Resultado esperado                                                                                                                                                                                      |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rechazaUnTokenDeGoogleInvalido`                                       | `verifier.verificar(...)` lanza `RuntimeException`                             | `ReglaNegocioException` código `GOOGLE_TOKEN_INVALIDO`; ni `usuarios` ni `tokenGenerator` se tocan                                                                                             |
+| `rechazaUnEmailDeGoogleNoVerificado`                                   | `emailVerified = false`                                                          | `ReglaNegocioException` código `GOOGLE_EMAIL_NO_VERIFICADO`                                                                                                                                        |
+| `autenticaUnUsuarioGoogleExistenteYActivo`                             | `buscarPorGoogleSubject` devuelve un usuario activo                              | `TokenResponse` con el JWT generado; **no** se llama a `guardar(...)`                                                                                                                         |
+| `rechazaUnUsuarioGoogleExistenteInactivo`                              | usuario encontrado por`googleSubject` con `activo=false`                       | `ReglaNegocioException` código `USUARIO_INACTIVO`; `tokenGenerator` no se toca                                                                                                                   |
+| `creaUnUsuarioNuevoConRolClienteCuandoNoExisteNiPorSubNiPorEmail`      | ni`googleSubject` ni `email` existen                                           | se captura el`Usuario` pasado a `guardar(...)` y se verifica: `id` generado, `username=email`, `email`, `googleSubject`, `passwordHash=null`, **`rol=CLIENTE`** y `activo=true` |
+| `rechazaCuandoYaExisteUnaCuentaLocalConElMismoEmailSinGoogleVinculado` | `googleSubject` no existe pero `email` sí (cuenta local con `passwordHash`) | `ReglaNegocioException` código `CUENTA_EXISTENTE_REQUIERE_VINCULACION`; no se guarda ni se genera token                                                                                            |
 
 Estos 6 casos son exactamente los previstos en el análisis original (§40, casos 1 a 6), con nombres de test descriptivos en español siguiendo el estilo del repo.
 
@@ -64,6 +64,7 @@ Estos 6 casos son exactamente los previstos en el análisis original (§40, caso
 ## Verificación contra reglas ArchUnit
 
 `AutenticarConGoogleUseCase` (en `usecases.service.auth`) importa únicamente:
+
 - `entities.enums.RolUsuario`, `entities.exception.ReglaNegocioException`, `entities.model.Usuario` (permitido: `usecases` puede depender de `entities`, la capa más interna).
 - `usecases.dto.*`, `usecases.port.out.*` (su propia capa).
 
@@ -75,27 +76,16 @@ El test usa Mockito/AssertJ, pero `CleanArchitectureTest` está configurado con 
 
 ## Impacto
 
-| Área | Impacto |
-|---|---|
-| `usecases` | 2 archivos nuevos (`GoogleLoginRequestModel`, `AutenticarConGoogleUseCase`). Ningún archivo existente se modificó en este paso. |
-| `AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase` | Sin cambios — el nuevo caso de uso es independiente, no los llama ni es llamado por ellos. |
-| `TokenGeneratorPort`/`JwtTokenAdapter` | Sin cambios — se reutiliza tal cual, confirmando la premisa central del diseño ("Google no reemplaza el JWT"). |
-| Seguridad | Rol de usuarios nuevos por Google queda **fijo en `CLIENTE`** dentro del propio caso de uso — el `GoogleLoginRequestModel` ni siquiera tiene un campo `rol`, así que es estructuralmente imposible que un cliente lo controle (a diferencia de `CrearUsuarioRequest.rol`, el problema preexistente documentado en el paso 1 / `IMPLEMENTACION-LOGIN-GOOGLE.md §4.17`). |
-| Aún no conectado | Este caso de uso **todavía no es alcanzable desde HTTP** — falta el paso 6 (`GoogleLoginRequest`, `RestRequestMapper`, `AuthController`, `UseCaseConfig`) para exponerlo como `/api/auth/google`. |
+| Área                                                     | Impacto                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `usecases`                                              | 2 archivos nuevos (`GoogleLoginRequestModel`, `AutenticarConGoogleUseCase`). Ningún archivo existente se modificó en este paso.                                                                                                                                                                                                                                                    |
+| `AutenticarUsuarioUseCase`, `RegistrarUsuarioUseCase` | Sin cambios — el nuevo caso de uso es independiente, no los llama ni es llamado por ellos.                                                                                                                                                                                                                                                                                              |
+| `TokenGeneratorPort`/`JwtTokenAdapter`                | Sin cambios — se reutiliza tal cual, confirmando la premisa central del diseño ("Google no reemplaza el JWT").                                                                                                                                                                                                                                                                         |
+| Seguridad                                                 | Rol de usuarios nuevos por Google queda**fijo en `CLIENTE`** dentro del propio caso de uso — el `GoogleLoginRequestModel` ni siquiera tiene un campo `rol`, así que es estructuralmente imposible que un cliente lo controle (a diferencia de `CrearUsuarioRequest.rol`, el problema preexistente documentado en el paso 1 / `IMPLEMENTACION-LOGIN-GOOGLE.md §4.17`). |
+| Aún no conectado                                         | Este caso de uso**todavía no es alcanzable desde HTTP** — falta el paso 6 (`GoogleLoginRequest`, `RestRequestMapper`, `AuthController`, `UseCaseConfig`) para exponerlo como `/api/auth/google`.                                                                                                                                                                       |
 
 ---
 
-## Verificación
-
-⚠️ Sin Maven/Java en este entorno, no se pudo ejecutar `mvn test`. Revisión manual de los 6 tests:
-
-- Todos los mocks corresponden a interfaces ya existentes (`UsuarioRepository`, `GoogleIdentityVerifierPort`, `TokenGeneratorPort`, `IdGeneratorPort`) con las firmas correctas después de los pasos 2 y 3.
-- El constructor de `Usuario` usado en los tests respeta el orden de 7 parámetros definido en el paso 1 (`id, username, email, passwordHash, googleSubject, rol, activo`).
-- Se usó `ArgumentCaptor<Usuario>` (mismo patrón que `PolizaEmitidaNotificationHandlerTest`) para inspeccionar el usuario creado en el caso "usuario nuevo", en vez de un `Usuario.equals()` que no existe (la clase no sobreescribe `equals`/`hashCode`).
-
-**Pendiente:** correr `mvn -q test -Dtest=AutenticarConGoogleUseCaseTest` en un entorno con JDK/Maven.
-
----
 
 ## Siguiente paso
 
