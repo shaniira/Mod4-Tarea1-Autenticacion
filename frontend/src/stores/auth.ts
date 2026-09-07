@@ -23,9 +23,16 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(username: string, password: string) {
       const { data } = await api.post('/auth/login', { username, password });
-      const payload = parseJwt(data.token);
+      this.setSession(data.token, username);
+    },
+    async loginWithGoogle(idToken: string) {
+      const { data } = await api.post('/auth/google', { idToken });
+      this.setSession(data.token, parseJwt(data.token).sub || '');
+    },
+    setSession(token: string, username: string) {
+      const payload = parseJwt(token);
 
-      this.token = data.token;
+      this.token = token;
       this.role = (payload.rol || payload.role || payload.roles?.[0]?.replace('ROLE_', '') || '') as Role;
       this.username = username;
 

@@ -14,6 +14,11 @@ const messagesByCode: Record<string, string> = {
   PLACA_DUPLICADA: 'Ya existe un vehículo registrado con esa placa.',
   USUARIO_DUPLICADO: 'El nombre de usuario ya está registrado.',
   CREDENCIALES_INVALIDAS: 'El usuario o la contraseña son incorrectos.',
+  GOOGLE_TOKEN_INVALIDO: 'No se pudo validar tu cuenta de Google. Intenta nuevamente.',
+  GOOGLE_EMAIL_NO_VERIFICADO: 'Tu correo de Google no está verificado.',
+  USUARIO_INACTIVO: 'Tu cuenta está inactiva. Contacta al administrador.',
+  CUENTA_EXISTENTE_REQUIERE_VINCULACION:
+    'Ya existe una cuenta con este correo. Inicia sesión con tu contraseña para vincular Google.',
   RECURSO_NO_ENCONTRADO: 'No se encontró la información solicitada.',
   VEHICULO_NO_PERTENECE: 'El vehículo seleccionado no pertenece al cliente.',
   TABLA_NO_DISPONIBLE: 'No existe una tabla tarifaria vigente para este vehículo.',
