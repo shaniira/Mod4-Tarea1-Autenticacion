@@ -1,5 +1,8 @@
 export type Role='ADMIN'|'ACTUARIO'|'AGENTE'|'CLIENTE';
 export interface GoogleCredentialResponse{credential:string}
+export interface TokenResponse{token:string;tipo:string;expiraEnSegundos:number}
+export interface ResultadoLogin{requiresMfa:boolean;token:TokenResponse|null;challengeToken:string|null;challengeExpiresIn:number}
+export interface MfaSetup{secret:string;otpauthUri:string;qrCodeDataUri:string}
 export type TipoVehiculo='AUTO'|'CAMIONETA'|'MOTO'; export type TipoUso='PARTICULAR'|'TAXI'|'CARGA';
 export interface Cliente {id:string;tipoDocumento:string;numeroDocumento:string;nombres:string;apellidos:string;fechaNacimiento:string;correo:string;telefono:string;activo:boolean}
 export interface Vehiculo{id:string;clienteId:string;placa:string;marca:string;modelo:string;anioFabricacion:number;tipo:TipoVehiculo;uso:TipoUso;zonaCirculacion:string}
