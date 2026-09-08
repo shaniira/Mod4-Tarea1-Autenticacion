@@ -10,6 +10,7 @@
 | Correo / usuario | Contraseña | Rol | Login con contraseña | Login con Google | Notas |
 |---|---|---|---|---|---|
 | `admin` | `Admin123*` | `ADMIN` | ✅ | — (no tiene correo, es la cuenta demo original) | Seedeada automáticamente por `MongoDemoDataInitializer` al levantar el backend. |
+| `admin2` | `admin2` | `ADMIN` | ✅ | — (sin correo, sin `googleSubject`) | Cuenta adicional creada vía `POST /api/auth/register` para pruebas de staff sin usar la cuenta demo original. Sin MFA configurado (`mfaHabilitado=false`). |
 | `ramirezlisset361@gmail.com` | `Cliente123*` | `CLIENTE` | ✅ | ✅ (ya vinculada, `googleSubject` guardado) | Al entrar ve solo **"Mi cuenta"** — su póliza `POL-CLI-TEST-001` (vigente) y su renovación pendiente. Sin acceso a clientes/cotizaciones de otros. |
 | `shanira.2.rc@gmail.com` | `Agente123*` | `AGENTE` | ✅ | ✅ (se vincula sola en su **primer** login con Google) | Acceso de staff: Resumen, Clientes y vehículos, Cotizaciones, Pólizas y siniestros, Renovaciones. |
 
@@ -95,4 +96,9 @@ curl -X POST http://localhost:8083/api/auth/login \
 # Mi cuenta (usar el token del login anterior)
 curl -X GET http://localhost:8083/api/mi-cuenta \
   -H "Authorization: Bearer <TOKEN>"
+
+# Login como admin2 (staff, sin MFA)
+curl -X POST http://localhost:8083/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin2","password":"admin2"}'
 ```
