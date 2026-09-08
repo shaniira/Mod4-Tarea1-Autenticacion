@@ -9,6 +9,16 @@ app:
   jwt:
     secret: ${JWT_SECRET:andina-seguros-clave-secreta-superior-a-32-caracteres-2026}
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:28800}
+  facebook:
+    app-id: ${FACEBOOK_APP_ID:}
+    app-secret: ${FACEBOOK_APP_SECRET:}
+    redirect-uri: ${FACEBOOK_REDIRECT_URI:}
+    authorization-uri: ${FACEBOOK_AUTHORIZATION_URI:https://www.facebook.com/v22.0/dialog/oauth}
+    token-uri: ${FACEBOOK_TOKEN_URI:https://graph.facebook.com/v22.0/oauth/access_token}
+    graph-base-url: ${FACEBOOK_GRAPH_BASE_URL:https://graph.facebook.com/v22.0}
+    scopes: ${FACEBOOK_SCOPES:public_profile,email}
+    oauth-state-ttl-seconds: ${FACEBOOK_OAUTH_STATE_TTL_SECONDS:300}
+    token-encryption-key: ${FACEBOOK_TOKEN_ENCRYPTION_KEY:}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   notification:

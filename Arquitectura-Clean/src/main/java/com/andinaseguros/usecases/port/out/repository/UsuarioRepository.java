@@ -7,4 +7,6 @@ public interface UsuarioRepository {
     Usuario guardar(Usuario usuario);
 
     Optional<Usuario> buscarPorUsername(String username);
+
+    Optional<Usuario> buscarPorProveedorYProveedorUsuarioId(String provider, String providerUserId);
 }

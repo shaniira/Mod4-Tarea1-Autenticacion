@@ -17,7 +17,9 @@ class AuthControllerTest {
     void controllerDelegaEnCasosDeUsoSinAccederAJpa() {
         var registro = mock(RegistrarUsuarioUseCase.class);
         var autenticacion = mock(AutenticarUsuarioUseCase.class);
-        var controller = new AuthController(registro, autenticacion);
+        var facebook = mock(AutenticarConFacebookUseCase.class);
+        var desvincularFacebook = mock(DesvincularFacebookUseCase.class);
+        var controller = new AuthController(registro, autenticacion, facebook, desvincularFacebook);
         var crear = new CrearUsuarioRequest("operador", "secreto", RolUsuario.ADMIN);
         var login = new LoginRequest("operador", "secreto");
         var crearCore = new CrearUsuarioRequestModel("operador", "secreto", RolUsuario.ADMIN);

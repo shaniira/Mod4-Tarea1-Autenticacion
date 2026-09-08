@@ -6,4 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SpringDataUsuarioMongoRepository extends MongoRepository<UsuarioDocument, String> {
     Optional<UsuarioDocument> findByUsername(String username);
+
+    Optional<UsuarioDocument> findByProviderAndProviderUserId(String provider, String providerUserId);
 }

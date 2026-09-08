@@ -11,14 +11,21 @@ public class UsuarioMongoMapper {
         var d = new UsuarioDocument();
         d.id = x.getId().toString();
         d.username = x.getUsername();
-        d.email = x.getUsername().contains("@") ? x.getUsername() : null;
+        d.email = x.getEmail();
         d.passwordHash = x.getPasswordHash();
         d.rol = x.getRol();
         d.activo = x.isActivo();
+        d.provider = x.getProvider();
+        d.providerUserId = x.getProviderUserId();
+        d.facebookAccessToken = x.getFacebookAccessToken();
+        d.facebookAccessTokenExpiresAt = x.getFacebookAccessTokenExpiresAt();
+        d.facebookScopes = x.getFacebookScopes();
         return d;
     }
 
     public Usuario toDomain(UsuarioDocument d) {
-        return new Usuario(UUID.fromString(d.id), d.username, d.passwordHash, d.rol, d.activo);
+        return new Usuario(UUID.fromString(d.id), d.username, d.passwordHash, d.rol, d.activo,
+            d.provider, d.providerUserId, d.email, d.facebookAccessToken,
+            d.facebookAccessTokenExpiresAt, d.facebookScopes);
     }
 }

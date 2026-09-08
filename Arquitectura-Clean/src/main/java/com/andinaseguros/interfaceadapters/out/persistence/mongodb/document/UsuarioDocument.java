@@ -4,8 +4,10 @@ import com.andinaseguros.entities.enums.RolUsuario;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 
 @Document("usuarios")
+@CompoundIndex(name = "provider_identity", def = "{'provider': 1, 'providerUserId': 1}", unique = true, sparse = true)
 public class UsuarioDocument {
     @Id public String id;
 
@@ -18,4 +20,9 @@ public class UsuarioDocument {
     public String passwordHash;
     public RolUsuario rol;
     public boolean activo;
+    public String provider;
+    public String providerUserId;
+    public String facebookAccessToken;
+    public long facebookAccessTokenExpiresAt;
+    public String facebookScopes;
 }

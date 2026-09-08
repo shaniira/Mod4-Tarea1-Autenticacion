@@ -3,6 +3,8 @@ package com.andinaseguros.frameworksdrivers.configuration.spring;
 import com.andinaseguros.usecases.port.in.ConsultarInformacionVehiculoUseCase;
 import com.andinaseguros.usecases.service.ConsultarInformacionVehiculoService;
 import com.andinaseguros.usecases.service.auth.AutenticarUsuarioUseCase;
+import com.andinaseguros.usecases.service.auth.AutenticarConFacebookUseCase;
+import com.andinaseguros.usecases.service.auth.DesvincularFacebookUseCase;
 import com.andinaseguros.usecases.service.auth.RegistrarUsuarioUseCase;
 import com.andinaseguros.usecases.service.cliente.CrearClienteUseCase;
 import com.andinaseguros.usecases.service.cliente.ListarClientesUseCase;
@@ -44,6 +46,7 @@ import com.andinaseguros.entities.service.MotorDeTarificacion;
 import com.andinaseguros.entities.service.PoliticaVariacionPrima;
 import com.andinaseguros.interfaceadapters.out.event.*;
 import com.andinaseguros.interfaceadapters.out.external.jsonpe.*;
+import com.andinaseguros.interfaceadapters.out.external.facebook.*;
 import com.andinaseguros.interfaceadapters.out.id.UuidGeneratorAdapter;
 import com.andinaseguros.interfaceadapters.out.notification.*;
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.adapter.ClienteContactMongoAdapter;
@@ -52,6 +55,8 @@ import com.andinaseguros.interfaceadapters.out.time.SystemClockAdapter;
 import com.andinaseguros.usecases.port.out.contact.ClienteContactPort;
 import com.andinaseguros.usecases.port.out.event.DomainEventPublisherPort;
 import com.andinaseguros.usecases.port.out.id.IdGeneratorPort;
+import com.andinaseguros.usecases.port.out.facebook.FacebookOAuthPort;
+import com.andinaseguros.usecases.port.out.facebook.OAuthStatePort;
 import com.andinaseguros.usecases.port.out.notification.NotificationPort;
 import com.andinaseguros.usecases.port.out.security.*;
 import com.andinaseguros.usecases.port.out.time.ClockPort;
@@ -67,7 +72,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@EnableConfigurationProperties({JsonPeProperties.class, WhatsAppProperties.class})
+@EnableConfigurationProperties({JsonPeProperties.class, WhatsAppProperties.class, FacebookProperties.class})
 public class UseCaseConfig {
 
     @Bean
@@ -105,6 +110,37 @@ public class UseCaseConfig {
             PasswordEncoderPort passwordEncoder,
             TokenGeneratorPort tokenGenerator) {
         return new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator);
+    }
+
+    @Bean
+    OAuthStatePort oauthStatePort(FacebookProperties properties) {
+        return new InMemoryOAuthStateAdapter(properties.oauthStateTtlSeconds());
+    }
+
+    @Bean
+    FacebookOAuthPort facebookOAuthPort(FacebookProperties properties) {
+        return new FacebookOAuthAdapter(RestClient.builder().build(), properties);
+    }
+
+    @Bean
+    SecretEncryptionPort facebookSecretEncryptionPort(FacebookProperties properties) {
+        return new AesGcmSecretEncryptionAdapter(properties.tokenEncryptionKey());
+    }
+
+    @Bean
+    AutenticarConFacebookUseCase autenticarConFacebook(
+            OAuthStatePort states,
+            FacebookOAuthPort facebook,
+            UsuarioRepository usuarios,
+            IdGeneratorPort ids,
+            SecretEncryptionPort encryption,
+            TokenGeneratorPort tokenGenerator) {
+        return new AutenticarConFacebookUseCase(states, facebook, usuarios, ids, encryption, tokenGenerator);
+    }
+
+    @Bean
+    DesvincularFacebookUseCase desvincularFacebook(UsuarioRepository usuarios) {
+        return new DesvincularFacebookUseCase(usuarios);
     }
 
     @Bean
