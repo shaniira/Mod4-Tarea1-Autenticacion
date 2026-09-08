@@ -254,7 +254,7 @@ public sealed interface ResultadoLogin {
 }
 ```
 
-`AutenticarUsuarioUseCase.execute(...)` y `AutenticarConGoogleUseCase.execute(...)` cambian su tipo de retorno de `TokenResponse` a `ResultadoLogin`.
+Solo `AutenticarUsuarioUseCase.execute(...)` cambia su tipo de retorno de `TokenResponse` a `ResultadoLogin`. `AutenticarConGoogleUseCase.execute(...)` conserva `TokenResponse`: el segundo factor de esta aplicación se exige únicamente en el acceso con usuario y contraseña.
 
 ## 6.7 Nuevos casos de uso
 
@@ -274,9 +274,9 @@ usecases/service/auth/VerificarMfaUseCase.java
 | `ObtenerEstadoMfaUseCase` | Responde si el usuario tiene MFA activo o no, **sin** exponer el secreto — para que el frontend sepa si mostrar "Activar" o "Desactivar". |
 | `VerificarMfaUseCase` | Recibe `{desafioId, codigo}` durante el login → busca el desafío, revisa que no haya expirado ni agotado intentos, busca al usuario, revisa que siga activo, verifica el código, y si todo es correcto recién ahí genera el JWT final. |
 
-## 6.8 Modificar los dos logins existentes
+## 6.8 Modificar únicamente el login local
 
-Justo antes de generar el JWT (después de validar contraseña o Google, y confirmar que el usuario está activo):
+Justo antes de generar el JWT, después de validar la contraseña y confirmar que el usuario está activo:
 
 ```text
 si usuario.mfaHabilitado:
@@ -286,7 +286,7 @@ si no:
     devolver LoginExitoso(tokenResponse)   ← comportamiento actual, sin cambios
 ```
 
-**Cuidado especial en `AutenticarConGoogleUseCase`:** al reconstruir el `Usuario` en `vincularGoogleAUsuarioExistente(...)`, hay que copiar explícitamente `mfaSecret` y `mfaHabilitado` del usuario existente. Si se olvida, **cualquier usuario con MFA activo perdería esa protección cada vez que inicia sesión con Google** — sería un bug de seguridad silencioso y grave.
+`AutenticarConGoogleUseCase` sigue emitiendo el JWT directamente, incluso si la cuenta tiene MFA configurado. No obstante, al reconstruir el usuario en `vincularGoogleAUsuarioExistente(...)` debe conservar `mfaSecret` y `mfaHabilitado`, para que el MFA continúe activo en futuros accesos locales.
 
 ## 6.9 Nuevos endpoints REST
 
@@ -369,7 +369,7 @@ No hace falta agregar ninguna librería de QR al frontend — el backend ya entr
 6. `VerificarMfaUseCase`: desafío inexistente, expirado, con intentos agotados, código incorrecto, código correcto.
 7. Usuario sin MFA: sigue recibiendo el JWT directo (regresión).
 8. Usuario con MFA, login local: recibe el desafío, no recibe JWT.
-9. Usuario con MFA, login con Google: recibe el desafío, no recibe JWT, **y conserva su `mfaSecret`/`mfaHabilitado`** después de vincularse (caso crítico de §6.8).
+9. Usuario con MFA, login con Google: recibe el JWT directamente y conserva su `mfaSecret`/`mfaHabilitado` para futuros accesos locales.
 10. Usuario que se desactiva justo entre el primer y el segundo factor: el segundo factor debe rechazarlo igual que hoy se rechaza a un usuario inactivo.
 11. `CleanArchitectureTest` debe seguir en verde — confirma que ninguna clase de la librería TOTP o de ZXing se filtró a `usecases`.
 
@@ -385,7 +385,7 @@ No hace falta agregar ninguna librería de QR al frontend — el backend ya entr
 8. Iniciar sesión de nuevo (con contraseña) y confirmar que aparece la pantalla pidiendo el código, no el dashboard directo.
 9. Probar un código incorrecto y confirmar el rechazo.
 10. Probar el código correcto y confirmar que entrega la sesión y se puede navegar normalmente.
-11. Repetir el login, esta vez con Google, y confirmar que también pide el código.
+11. Repetir el login con Google y confirmar que entra directamente, sin solicitar el código MFA de la aplicación.
 12. Intentar reutilizar un desafío ya usado y confirmar que se rechaza.
 13. Probar la desactivación de MFA y confirmar que el siguiente login vuelve a ser de un solo paso.
 
@@ -399,7 +399,7 @@ No hace falta agregar ninguna librería de QR al frontend — el backend ya entr
 4. Backend: agregar `ResultadoLogin` (sealed interface) en `Responses.java`.
 5. Backend: crear `ConfigurarMfaUseCase`, `ActivarMfaUseCase`, `DesactivarMfaUseCase`, `ObtenerEstadoMfaUseCase` + tests.
 6. Backend: crear `VerificarMfaUseCase` + tests.
-7. Backend: modificar `AutenticarUsuarioUseCase` y `AutenticarConGoogleUseCase` para bifurcar por `mfaHabilitado` (con especial cuidado en el punto de §6.8).
+7. Backend: modificar únicamente `AutenticarUsuarioUseCase` para bifurcar por `mfaHabilitado`; el login con Google conserva la emisión directa del JWT.
 8. Backend: `MfaController`, endpoint `AuthController.verificarMfa`, DTOs REST, `UseCaseConfig`, `application.yml`.
 9. Backend: build completo con Docker (como se hizo con el login de Google) — confirmar que toda la suite y `CleanArchitectureTest` quedan en verde.
 10. Frontend: store, paso de código en `LoginView`, vista de configuración de MFA, mensajes de error nuevos.
@@ -410,7 +410,8 @@ No hace falta agregar ninguna librería de QR al frontend — el backend ya entr
 # PARTE 11 — Criterios de aceptación
 
 - [ ] Una cuenta sin MFA sigue entrando en un solo paso, por contraseña y por Google, sin cambios de comportamiento.
-- [ ] Una cuenta con MFA nunca recibe un JWT completo antes de validar el código.
+- [ ] Una cuenta con MFA no recibe un JWT completo antes de validar el código cuando utiliza usuario y contraseña.
+- [ ] El login con Google entrega el JWT directamente y no solicita el TOTP de la aplicación.
 - [ ] El desafío de MFA no es un JWT y jamás es aceptado como sesión por `JwtAuthenticationFilter`.
 - [ ] Un código incorrecto cuenta como intento fallido y no revela información adicional.
 - [ ] Superar el máximo de intentos invalida el desafío y obliga a iniciar sesión de nuevo.
