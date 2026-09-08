@@ -1,4 +1,4 @@
-# Estándar de commits del proyecto
+# Estándar de commits
 
 ## 1. Convención
 
@@ -126,25 +126,25 @@ perf(api): reduce el tamaño de las respuestas
 
 ## 4. Scopes recomendados
 
-| Scope | Uso |
-|---|---|
-| `auth` | Login local, Google Login y autorización general |
-| `mfa` | Google Authenticator, TOTP y desafíos de segundo factor |
-| `jwt` | Generación, validación y expiración de tokens JWT |
-| `user` | Entidad, registro y persistencia de usuarios |
-| `customer` | Clientes o asegurados |
-| `policy` | Pólizas y sus reglas de negocio |
-| `pricing` | Cotizaciones, primas y tablas tarifarias |
-| `ui` | Cambios visuales generales del frontend |
-| `router` | Rutas y guards de Vue Router |
-| `api` | Contratos HTTP, controllers y cliente Axios |
-| `mongo` | Persistencia y migraciones de MongoDB |
-| `security` | Configuración transversal de seguridad |
-| `docker` | Dockerfile y Docker Compose |
-| `maven` | Configuración y dependencias Maven |
-| `deps` | Actualización general de dependencias |
-| `sonar` | Configuración o ejecución de SonarQube |
-| `docs` | Estructura general de documentación |
+| Scope        | Uso                                                      |
+| ------------ | -------------------------------------------------------- |
+| `auth`     | Login local, Google Login y autorización general        |
+| `mfa`      | Google Authenticator, TOTP y desafíos de segundo factor |
+| `jwt`      | Generación, validación y expiración de tokens JWT     |
+| `user`     | Entidad, registro y persistencia de usuarios             |
+| `customer` | Clientes o asegurados                                    |
+| `policy`   | Pólizas y sus reglas de negocio                         |
+| `pricing`  | Cotizaciones, primas y tablas tarifarias                 |
+| `ui`       | Cambios visuales generales del frontend                  |
+| `router`   | Rutas y guards de Vue Router                             |
+| `api`      | Contratos HTTP, controllers y cliente Axios              |
+| `mongo`    | Persistencia y migraciones de MongoDB                    |
+| `security` | Configuración transversal de seguridad                  |
+| `docker`   | Dockerfile y Docker Compose                              |
+| `maven`    | Configuración y dependencias Maven                      |
+| `deps`     | Actualización general de dependencias                   |
+| `sonar`    | Configuración o ejecución de SonarQube                 |
+| `docs`     | Estructura general de documentación                     |
 
 Se debe escoger el scope más específico. Por ejemplo, una corrección del código TOTP utiliza `mfa`, no el scope general `security`.
 
@@ -176,17 +176,17 @@ Antes de integrar un cambio incompatible se deben actualizar backend, frontend, 
 
 ## 7. Referencia rápida
 
-| Tipo | Cuándo utilizarlo |
-|---|---|
-| `feat` | Nueva funcionalidad |
-| `fix` | Corrección de un error |
-| `test` | Pruebas nuevas o modificadas |
-| `refactor` | Reorganización sin cambiar comportamiento |
-| `docs` | Documentación |
-| `chore` | Mantenimiento general |
-| `build` | Compilación, empaquetado o dependencias de ejecución |
-| `ci` | Pipelines y automatización |
-| `perf` | Mejora de rendimiento |
+| Tipo         | Cuándo utilizarlo                                     |
+| ------------ | ------------------------------------------------------ |
+| `feat`     | Nueva funcionalidad                                    |
+| `fix`      | Corrección de un error                                |
+| `test`     | Pruebas nuevas o modificadas                           |
+| `refactor` | Reorganización sin cambiar comportamiento             |
+| `docs`     | Documentación                                         |
+| `chore`    | Mantenimiento general                                  |
+| `build`    | Compilación, empaquetado o dependencias de ejecución |
+| `ci`       | Pipelines y automatización                            |
+| `perf`     | Mejora de rendimiento                                  |
 
 ## 8. Secuencia sugerida para implementar MFA
 

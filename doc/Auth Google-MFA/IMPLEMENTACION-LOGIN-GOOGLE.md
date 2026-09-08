@@ -14,23 +14,23 @@ Hoy el login es `username/password → BCrypt → JwtTokenAdapter → JWT propio
 
 ## 1. Estado actual verificado (backend `Arquitectura-Clean`)
 
-| Archivo | Contenido relevante confirmado |
-|---|---|
-| `entities/model/Usuario.java` | Campos: `id, username, passwordHash, rol, activo`. **No tiene `email` ni `googleSubject`.** |
-| `interfaceadapters/.../document/UsuarioDocument.java` | Ya tiene `email` (`@Indexed(unique, sparse)`) además de `username, passwordHash, rol, activo`. |
-| `interfaceadapters/.../mapper/UsuarioMongoMapper.java` | `email` se **infiere** de `username.contains("@")`, no se persiste como campo propio del dominio. Hay que corregir esto. |
-| `usecases/port/out/repository/UsuarioRepository.java` | Solo `guardar()` y `buscarPorUsername()`. Falta `buscarPorEmail` / `buscarPorGoogleSubject`. |
-| `usecases/service/auth/AutenticarUsuarioUseCase.java` | Compara `passwordEncoder.coincide(password, usuario.getPasswordHash())` **sin verificar null** → si se permite `passwordHash = null` para usuarios Google, esto debe protegerse. |
-| `usecases/service/auth/RegistrarUsuarioUseCase.java` | Crea usuario con rol tomado del request. |
-| `interfaceadapters/in/rest/request/CrearUsuarioRequest.java` | **El cliente puede enviar `rol` libremente** (`ADMIN`, etc.) — riesgo de seguridad preexistente, no causado por Google, pero relevante porque el nuevo endpoint de Google debe evitar el mismo error. |
-| `interfaceadapters/in/rest/controller/AuthController.java` | Solo `POST /register` y `POST /login`. |
-| `frameworksdrivers/configuration/spring/SecurityConfig.java` | `/api/auth/**` ya es `permitAll()`, CORS restringido a `app.cors.allowed-origins` (default `http://localhost:5173`), `STATELESS`, CSRF deshabilitado. **No requiere cambios de reglas** para agregar `/api/auth/google`. |
-| `interfaceadapters/out/security/JwtTokenAdapter.java` | Genera JWT con `subject = usuario.username()` y claim `rol`. Reutilizable tal cual para Google. |
-| `interfaceadapters/out/security/JwtAuthenticationFilter.java` | Valida JWT y busca al usuario por `buscarPorUsername(claims.username())`. **No se toca.** |
-| `pom.xml` | Spring Boot 3.3.5, JJWT 0.12.6, `spring-boot-starter-security`, ArchUnit 1.3.0 en test. **No hay ninguna dependencia de Google ni de `spring-security-oauth2-*` todavía.** |
-| `application.yml` | No existe ninguna clave `app.google.*`. Hay que añadirla. |
-| `src/test/.../architecture/CleanArchitectureTest.java` | Existen pruebas ArchUnit reales — cualquier fuga de una clase de Google/Spring Security hacia `usecases` romperá el build. |
-| `RolUsuario` | Enum: `ADMIN, ACTUARIO, AGENTE, CLIENTE`. |
+| Archivo                                                         | Contenido relevante confirmado                                                                                                                                                                                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `entities/model/Usuario.java`                                 | Campos:`id, username, passwordHash, rol, activo`. **No tiene `email` ni `googleSubject`.**                                                                                                                                     |
+| `interfaceadapters/.../document/UsuarioDocument.java`         | Ya tiene`email` (`@Indexed(unique, sparse)`) además de `username, passwordHash, rol, activo`.                                                                                                                                       |
+| `interfaceadapters/.../mapper/UsuarioMongoMapper.java`        | `email` se **infiere** de `username.contains("@")`, no se persiste como campo propio del dominio. Hay que corregir esto.                                                                                                         |
+| `usecases/port/out/repository/UsuarioRepository.java`         | Solo`guardar()` y `buscarPorUsername()`. Falta `buscarPorEmail` / `buscarPorGoogleSubject`.                                                                                                                                        |
+| `usecases/service/auth/AutenticarUsuarioUseCase.java`         | Compara`passwordEncoder.coincide(password, usuario.getPasswordHash())` **sin verificar null** → si se permite `passwordHash = null` para usuarios Google, esto debe protegerse.                                                 |
+| `usecases/service/auth/RegistrarUsuarioUseCase.java`          | Crea usuario con rol tomado del request.                                                                                                                                                                                                   |
+| `interfaceadapters/in/rest/request/CrearUsuarioRequest.java`  | **El cliente puede enviar `rol` libremente** (`ADMIN`, etc.) — riesgo de seguridad preexistente, no causado por Google, pero relevante porque el nuevo endpoint de Google debe evitar el mismo error.                           |
+| `interfaceadapters/in/rest/controller/AuthController.java`    | Solo`POST /register` y `POST /login`.                                                                                                                                                                                                  |
+| `frameworksdrivers/configuration/spring/SecurityConfig.java`  | `/api/auth/**` ya es `permitAll()`, CORS restringido a `app.cors.allowed-origins` (default `http://localhost:5173`), `STATELESS`, CSRF deshabilitado. **No requiere cambios de reglas** para agregar `/api/auth/google`. |
+| `interfaceadapters/out/security/JwtTokenAdapter.java`         | Genera JWT con`subject = usuario.username()` y claim `rol`. Reutilizable tal cual para Google.                                                                                                                                         |
+| `interfaceadapters/out/security/JwtAuthenticationFilter.java` | Valida JWT y busca al usuario por`buscarPorUsername(claims.username())`. **No se toca.**                                                                                                                                           |
+| `pom.xml`                                                     | Spring Boot 3.3.5, JJWT 0.12.6,`spring-boot-starter-security`, ArchUnit 1.3.0 en test. **No hay ninguna dependencia de Google ni de `spring-security-oauth2-*` todavía.**                                                       |
+| `application.yml`                                             | No existe ninguna clave`app.google.*`. Hay que añadirla.                                                                                                                                                                                |
+| `src/test/.../architecture/CleanArchitectureTest.java`        | Existen pruebas ArchUnit reales — cualquier fuga de una clase de Google/Spring Security hacia`usecases` romperá el build.                                                                                                              |
+| `RolUsuario`                                                  | Enum:`ADMIN, ACTUARIO, AGENTE, CLIENTE`.                                                                                                                                                                                                 |
 
 **Conclusión:** el análisis previo (`analisisv1.md`) describe correctamente el estado del proyecto; se usa como base de diseño y aquí se traduce a instrucciones accionables y verificadas.
 
@@ -38,15 +38,15 @@ Hoy el login es `username/password → BCrypt → JwtTokenAdapter → JWT propio
 
 ## 2. Estado actual verificado (frontend)
 
-| Archivo | Contenido relevante |
-|---|---|
-| `package.json` | Vue 3.5, Pinia 2.3, vue-router 4.5, axios 1.7. **Sin ningún paquete de Google** (`@react-oauth/google` no aplica; para Vue no hay dependencia instalada). |
-| `src/stores/auth.ts` | Pinia store con `login(username, password)` que llama `api.post('/auth/login', ...)`, decodifica el JWT (payload) para extraer `role`, y persiste `token/role/username` en `localStorage`. |
-| `src/views/LoginView.vue` | Formulario username/password minimalista (código en una sola línea, patrón usado en todo el proyecto). No hay botón social. |
-| `src/services/api.ts` | Instancia axios con interceptor que agrega `Authorization: Bearer <token>` y maneja expiración (401/403 `TOKEN_INVALIDO` → redirige a `/login`). Mapea códigos de error de negocio (`CREDENCIALES_INVALIDAS`, etc.) a mensajes en español. |
-| `src/router/index.ts` | Guard global: rutas no públicas requieren `isAuthenticated`; hay control de roles por ruta (`meta.roles`). |
-| `frontend/.env.example` | Solo `VITE_API_URL`. Falta `VITE_GOOGLE_CLIENT_ID`. |
-| `index.html` | HTML mínimo, sin scripts externos cargados. Aquí debe ir el `<script src="https://accounts.google.com/gsi/client">`. |
+| Archivo                     | Contenido relevante                                                                                                                                                                                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json`            | Vue 3.5, Pinia 2.3, vue-router 4.5, axios 1.7.**Sin ningún paquete de Google** (`@react-oauth/google` no aplica; para Vue no hay dependencia instalada).                                                                                     |
+| `src/stores/auth.ts`      | Pinia store con`login(username, password)` que llama `api.post('/auth/login', ...)`, decodifica el JWT (payload) para extraer `role`, y persiste `token/role/username` en `localStorage`.                                                   |
+| `src/views/LoginView.vue` | Formulario username/password minimalista (código en una sola línea, patrón usado en todo el proyecto). No hay botón social.                                                                                                                       |
+| `src/services/api.ts`     | Instancia axios con interceptor que agrega`Authorization: Bearer <token>` y maneja expiración (401/403 `TOKEN_INVALIDO` → redirige a `/login`). Mapea códigos de error de negocio (`CREDENCIALES_INVALIDAS`, etc.) a mensajes en español. |
+| `src/router/index.ts`     | Guard global: rutas no públicas requieren`isAuthenticated`; hay control de roles por ruta (`meta.roles`).                                                                                                                                        |
+| `frontend/.env.example`   | Solo`VITE_API_URL`. Falta `VITE_GOOGLE_CLIENT_ID`.                                                                                                                                                                                                |
+| `index.html`              | HTML mínimo, sin scripts externos cargados. Aquí debe ir el`<script src="https://accounts.google.com/gsi/client">`.                                                                                                                               |
 
 **Conclusión:** el frontend no tiene ninguna pieza de Google todavía; todo es trabajo nuevo, pero se integra limpiamente en el store y el servicio de API existentes sin rediseñar nada.
 
@@ -104,10 +104,12 @@ public class Usuario {
 ### 4.3 `usecases/port/out/repository/UsuarioRepository.java` — MODIFICAR
 
 Agregar:
+
 ```java
 Optional<Usuario> buscarPorEmail(String email);
 Optional<Usuario> buscarPorGoogleSubject(String googleSubject);
 ```
+
 Sigue siendo un puerto de salida puro (sin imports de Mongo/Spring).
 
 ### 4.4 Persistencia Mongo — MODIFICAR (3 archivos)
@@ -120,6 +122,7 @@ Sigue siendo un puerto de salida puro (sin imports de Mongo/Spring).
 ### 4.5 Nuevo modelo de puerto — CREAR
 
 `usecases/port/out/security/GoogleIdentity.java`
+
 ```java
 public record GoogleIdentity(
         String subject,
@@ -130,16 +133,19 @@ public record GoogleIdentity(
 ```
 
 `usecases/port/out/security/GoogleIdentityVerifierPort.java`
+
 ```java
 public interface GoogleIdentityVerifierPort {
     GoogleIdentity verificar(String idToken);
 }
 ```
+
 Este puerto no debe importar nada de Google SDK, Nimbus ni Spring Security — así ArchUnit (`usecases no dependen de Spring/Mongo`) sigue pasando.
 
 ### 4.6 DTOs del caso de uso — CREAR
 
 `usecases/dto/GoogleLoginRequestModel.java`
+
 ```java
 public record GoogleLoginRequestModel(String idToken) {}
 ```
@@ -186,6 +192,7 @@ Errores de verificación (firma inválida, `aud`/`iss` incorrectos, expirado) de
 ### 4.10 Nuevo DTO REST — CREAR
 
 `interfaceadapters/in/rest/request/GoogleLoginRequest.java`
+
 ```java
 public record GoogleLoginRequest(@NotBlank String idToken) {}
 ```
@@ -195,12 +202,14 @@ Actualizar `RestRequestMapper` con `toCore(GoogleLoginRequest)` → `GoogleLogin
 ### 4.11 `AuthController.java` — MODIFICAR
 
 Inyectar `AutenticarConGoogleUseCase` y agregar:
+
 ```java
 @PostMapping("/google")
 public TokenResponse google(@Valid @RequestBody GoogleLoginRequest solicitud) {
     return autenticarConGoogle.execute(toCore(solicitud));
 }
 ```
+
 Sin lógica adicional en el controller (mismo estilo que `login`/`register`).
 
 ### 4.12 `UseCaseConfig.java` — MODIFICAR
@@ -215,17 +224,20 @@ app:
     client-id: ${GOOGLE_CLIENT_ID:}
     issuer: https://accounts.google.com
 ```
+
 Y propagar `GOOGLE_CLIENT_ID` como variable de entorno en `Arquitectura-Clean/docker-compose.yml` (revisar cómo se pasa hoy `JWT_SECRET`/`CORS_ALLOWED_ORIGINS` y replicar el mismo mecanismo).
 
 ### 4.14 `pom.xml` — MODIFICAR
 
 Agregar (si se opta por la ruta Spring):
+
 ```xml
 <dependency>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-oauth2-jose</artifactId>
 </dependency>
 ```
+
 Spring Boot 3.3.5 gestiona la versión (BOM del parent), no hace falta fijarla.
 
 ### 4.15 `SecurityConfig.java` — SIN CAMBIOS FUNCIONALES
@@ -247,6 +259,7 @@ Confirmado por lectura del código: ambos flujos (local y Google) convergen en e
 ### 5.1 `index.html` — MODIFICAR
 
 Cargar el script de Google Identity Services:
+
 ```html
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 ```
@@ -261,6 +274,7 @@ VITE_GOOGLE_CLIENT_ID=xxxxxxxxxxxx.apps.googleusercontent.com
 ### 5.3 `src/types/index.ts` — MODIFICAR (opcional pero recomendado)
 
 Agregar un tipo mínimo para el callback de GIS, ya que el proyecto es TypeScript estricto (`vue-tsc -b` en `build`):
+
 ```ts
 export interface GoogleCredentialResponse { credential: string }
 ```
@@ -281,6 +295,7 @@ async loginWithGoogle(idToken: string) {
   localStorage.setItem('username', this.username);
 }
 ```
+
 Nota: como el backend firma el JWT con `subject = username` (= email para usuarios Google), `payload.sub` ya trae el username correcto — no hace falta pedir nada extra al backend.
 
 ### 5.5 `src/views/LoginView.vue` — MODIFICAR
@@ -322,6 +337,7 @@ onMounted(() => {
 });
 </script>
 ```
+
 Y en el `<template>`, dentro del `login-card`, agregar un contenedor `<div id="google-btn"></div>` (por ejemplo entre el botón "Iniciar sesión" y el texto de credenciales de prueba).
 
 Como el archivo actual usa TypeScript con tipos estrictos y `window.google` no tiene tipos oficiales sin instalar `@types/google.accounts`, usar `(window as any).google` es aceptable aquí (patrón común para GIS) o declarar un `d.ts` mínimo si se prefiere evitar `any`.
@@ -329,6 +345,7 @@ Como el archivo actual usa TypeScript con tipos estrictos y `window.google` no t
 ### 5.6 `src/services/api.ts` — SIN CAMBIOS
 
 El interceptor de `Authorization` y el manejo de errores por `codigo` ya funcionan igual para la respuesta de `/auth/google` (mismo contrato `TokenResponse`). Solo hay que añadir los nuevos códigos de error al mapa `messagesByCode`:
+
 ```ts
 GOOGLE_TOKEN_INVALIDO: 'No se pudo validar tu cuenta de Google. Intenta nuevamente.',
 GOOGLE_EMAIL_NO_VERIFICADO: 'Tu correo de Google no está verificado.',
@@ -385,6 +402,7 @@ El documento base propone, para el caso "existe una cuenta local con el mismo em
 ## 10. Plan de pruebas
 
 **Backend — unitarias `AutenticarConGoogleUseCase`:**
+
 1. Token inválido (verifier lanza excepción) → `GOOGLE_TOKEN_INVALIDO`.
 2. Usuario Google existente y activo → JWT emitido.
 3. Usuario Google existente pero inactivo → rechazo.
