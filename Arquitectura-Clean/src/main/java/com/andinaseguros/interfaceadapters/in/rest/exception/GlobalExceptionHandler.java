@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
                             "GOOGLE_TOKEN_INVALIDO",
                             "GOOGLE_EMAIL_NO_VERIFICADO",
                             "USUARIO_INACTIVO" -> HttpStatus.UNAUTHORIZED;
-                    case "CUENTA_EXISTENTE_REQUIERE_VINCULACION" -> HttpStatus.CONFLICT;
+                    case "CLIENTE_NO_REGISTRADO" -> HttpStatus.FORBIDDEN;
                     default -> HttpStatus.UNPROCESSABLE_ENTITY;
                 };
 

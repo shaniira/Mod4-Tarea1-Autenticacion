@@ -29,6 +29,10 @@ public class ClienteMongoRepositoryAdapter implements ClienteRepository {
         return repo.findByNumeroDocumento(x).map(mapper::toDomain);
     }
 
+    public Optional<Cliente> buscarPorCorreo(String x) {
+        return repo.findByCorreo(x).map(mapper::toDomain);
+    }
+
     public List<Cliente> listar() {
         return repo.findAll().stream().map(mapper::toDomain).toList();
     }

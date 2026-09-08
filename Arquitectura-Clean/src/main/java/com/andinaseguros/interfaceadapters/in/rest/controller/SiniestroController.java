@@ -7,10 +7,12 @@ import com.andinaseguros.usecases.service.siniestro.*;
 import jakarta.validation.Valid;
 import java.util.*;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/polizas/{polizaId}/siniestros")
+@PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
 public class SiniestroController {
     private final RegistrarSiniestroUseCase registrarSiniestroUseCase;
     private final ActualizarEstadoSiniestroUseCase actualizarEstadoUseCase;

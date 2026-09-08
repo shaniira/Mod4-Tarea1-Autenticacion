@@ -118,4 +118,10 @@ public final class Responses {
             UUID polizaRenovadaId) {}
 
     public record TokenResponse(String token, String tipo, long expiraEnSegundos) {}
+
+    public record PolizaConRenovacionesResponse(
+            PolizaResponse poliza, List<RenovacionResponse> renovaciones) {}
+
+    public record MiCuentaResponse(
+            ClienteResponse cliente, List<PolizaConRenovacionesResponse> polizas) {}
 }

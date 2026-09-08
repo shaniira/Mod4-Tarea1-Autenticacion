@@ -11,3 +11,5 @@ export interface Cotizacion{id:string;numero:string;clienteId:string;vehiculoId:
 export interface Poliza{id:string;numero:string;cotizacionId?:string;clienteId:string;vehiculoId:string;prima:number;moneda:string;inicio:string;fin:string;estado:string;renovacionOrigenId?:string}
 export interface Siniestro{id:string;polizaId:string;fecha:string;tipo:string;montoEstimado:number;responsabilidadAsegurado:boolean;gravedad:string;estado:string}
 export interface Renovacion{id:string;polizaOrigenId:string;primaAnterior:number;nuevaPrima:number;porcentajeVariacion:number;siniestrosConsiderados:number;estado:string;motivo:string;creadaEn:string;venceEn:string;decididaEn?:string;polizaRenovadaId?:string}
+export interface MiCuentaPoliza{poliza:Poliza;renovaciones:Renovacion[]}
+export interface MiCuenta{cliente:Cliente|null;polizas:MiCuentaPoliza[]}

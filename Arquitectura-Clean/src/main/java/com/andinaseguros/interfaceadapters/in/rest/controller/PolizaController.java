@@ -8,10 +8,12 @@ import com.andinaseguros.usecases.service.poliza.*;
 import jakarta.validation.Valid;
 import java.util.*;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/polizas")
+@PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
 public class PolizaController {
     private final EmitirPolizaInputPort emitirPolizaUseCase;
     private final ObtenerPolizaUseCase obtenerPolizaUseCase;

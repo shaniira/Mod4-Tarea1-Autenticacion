@@ -48,11 +48,13 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
     ClienteResponse obtener(@PathVariable UUID id) {
         return obtenerClienteUseCase.execute(id);
     }
 
     @PostMapping("/{id}/vehiculos")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
     ResponseEntity<VehiculoResponse> vehiculo(
             @PathVariable UUID id, @Valid @RequestBody CrearVehiculoRequest solicitud) {
         return ResponseEntity.status(201)
@@ -70,6 +72,7 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}/vehiculos")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
     List<VehiculoResponse> vehiculos(@PathVariable UUID id) {
         return listarVehiculos.execute(id);
     }

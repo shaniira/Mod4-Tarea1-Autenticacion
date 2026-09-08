@@ -4,10 +4,12 @@ import com.andinaseguros.usecases.dto.Responses.*;
 import com.andinaseguros.usecases.service.renovacion.*;
 import java.util.*;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/renovaciones")
+@PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
 public class RenovacionController {
     private final ListarRenovacionesUseCase listarRenovacionesUseCase;
     private final ObtenerRenovacionUseCase obtenerRenovacionUseCase;

@@ -8,6 +8,7 @@ import com.andinaseguros.usecases.service.auth.RegistrarUsuarioUseCase;
 import com.andinaseguros.usecases.service.cliente.CrearClienteUseCase;
 import com.andinaseguros.usecases.service.cliente.ListarClientesUseCase;
 import com.andinaseguros.usecases.service.cliente.ObtenerClienteUseCase;
+import com.andinaseguros.usecases.service.cliente.ObtenerMiCuentaUseCase;
 import com.andinaseguros.usecases.service.cotizacion.AceptarCotizacionUseCase;
 import com.andinaseguros.usecases.service.cotizacion.CrearCotizacionUseCase;
 import com.andinaseguros.usecases.service.cotizacion.ListarCotizacionesPendientesEmisionUseCase;
@@ -124,10 +125,21 @@ public class UseCaseConfig {
     @Bean
     AutenticarConGoogleUseCase autenticarConGoogle(
             UsuarioRepository usuarios,
+            ClienteRepository clientes,
             GoogleIdentityVerifierPort googleIdentityVerifier,
             TokenGeneratorPort tokenGenerator,
             IdGeneratorPort ids) {
-        return new AutenticarConGoogleUseCase(usuarios, googleIdentityVerifier, tokenGenerator, ids);
+        return new AutenticarConGoogleUseCase(
+                usuarios, clientes, googleIdentityVerifier, tokenGenerator, ids);
+    }
+
+    @Bean
+    ObtenerMiCuentaUseCase obtenerMiCuenta(
+            UsuarioRepository usuarios,
+            ClienteRepository clientes,
+            PolizaRepository polizas,
+            RenovacionRepository renovaciones) {
+        return new ObtenerMiCuentaUseCase(usuarios, clientes, polizas, renovaciones);
     }
 
     @Bean

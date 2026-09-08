@@ -44,7 +44,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void cuentaExistenteRequiereVinculacionReturnsConflict() {
+    void clienteNoRegistradoReturnsForbidden() {
         var request = mock(HttpServletRequest.class);
         when(request.getRequestURI()).thenReturn("/api/auth/google");
 
@@ -52,10 +52,10 @@ class GlobalExceptionHandlerTest {
                 new GlobalExceptionHandler()
                         .domain(
                                 new ReglaNegocioException(
-                                        "CUENTA_EXISTENTE_REQUIERE_VINCULACION",
-                                        "Ya existe una cuenta local con este correo"),
+                                        "CLIENTE_NO_REGISTRADO",
+                                        "Tu correo no está registrado como cliente"),
                                 request);
 
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 }

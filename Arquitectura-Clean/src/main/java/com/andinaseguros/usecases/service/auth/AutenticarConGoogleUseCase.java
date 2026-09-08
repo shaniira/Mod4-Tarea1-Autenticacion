@@ -6,21 +6,25 @@ import com.andinaseguros.entities.model.Usuario;
 import com.andinaseguros.usecases.dto.GoogleLoginRequestModel;
 import com.andinaseguros.usecases.dto.Responses.TokenResponse;
 import com.andinaseguros.usecases.port.out.id.IdGeneratorPort;
+import com.andinaseguros.usecases.port.out.repository.ClienteRepository;
 import com.andinaseguros.usecases.port.out.repository.UsuarioRepository;
 import com.andinaseguros.usecases.port.out.security.*;
 
 public class AutenticarConGoogleUseCase {
     private final UsuarioRepository usuarios;
+    private final ClienteRepository clientes;
     private final GoogleIdentityVerifierPort googleIdentityVerifier;
     private final TokenGeneratorPort tokenGenerator;
     private final IdGeneratorPort ids;
 
     public AutenticarConGoogleUseCase(
             UsuarioRepository usuarios,
+            ClienteRepository clientes,
             GoogleIdentityVerifierPort googleIdentityVerifier,
             TokenGeneratorPort tokenGenerator,
             IdGeneratorPort ids) {
         this.usuarios = usuarios;
+        this.clientes = clientes;
         this.googleIdentityVerifier = googleIdentityVerifier;
         this.tokenGenerator = tokenGenerator;
         this.ids = ids;
@@ -55,8 +59,12 @@ public class AutenticarConGoogleUseCase {
     }
 
     private Usuario vincularOCrearUsuario(GoogleIdentity identidad) {
-        if (usuarios.buscarPorEmail(identidad.email()).isPresent()) {
-            throw cuentaRequiereVinculacion();
+        var existente = usuarios.buscarPorEmail(identidad.email());
+        if (existente.isPresent()) {
+            return vincularGoogleAUsuarioExistente(existente.get(), identidad.subject());
+        }
+        if (clientes.buscarPorCorreo(identidad.email()).isEmpty()) {
+            throw clienteNoRegistrado();
         }
         return usuarios.guardar(
                 new Usuario(
@@ -67,6 +75,18 @@ public class AutenticarConGoogleUseCase {
                         identidad.subject(),
                         RolUsuario.CLIENTE,
                         true));
+    }
+
+    private Usuario vincularGoogleAUsuarioExistente(Usuario existente, String googleSubject) {
+        return usuarios.guardar(
+                new Usuario(
+                        existente.getId(),
+                        existente.getUsername(),
+                        existente.getEmail(),
+                        existente.getPasswordHash(),
+                        googleSubject,
+                        existente.getRol(),
+                        existente.isActivo()));
     }
 
     private ReglaNegocioException tokenInvalido() {
@@ -83,10 +103,10 @@ public class AutenticarConGoogleUseCase {
         return new ReglaNegocioException("USUARIO_INACTIVO", "El usuario está inactivo");
     }
 
-    private ReglaNegocioException cuentaRequiereVinculacion() {
+    private ReglaNegocioException clienteNoRegistrado() {
         return new ReglaNegocioException(
-                "CUENTA_EXISTENTE_REQUIERE_VINCULACION",
-                "Ya existe una cuenta local con este correo; inicia sesión con tu contraseña para"
-                        + " vincular Google");
+                "CLIENTE_NO_REGISTRADO",
+                "Tu correo no está registrado como cliente de Andina Seguros. Contacta a un agente"
+                        + " para registrarte.");
     }
 }

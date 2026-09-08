@@ -10,5 +10,7 @@ public interface ClienteRepository {
 
     Optional<Cliente> buscarPorDocumento(String doc);
 
+    Optional<Cliente> buscarPorCorreo(String correo);
+
     List<Cliente> listar();
 }

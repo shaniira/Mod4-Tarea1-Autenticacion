@@ -9,10 +9,12 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cotizaciones")
+@PreAuthorize("hasAnyRole('ADMIN','AGENTE')")
 public class CotizacionController {
     private final CrearCotizacionInputPort crearCotizacionUseCase;
     private final ObtenerCotizacionUseCase obtenerCotizacionUseCase;

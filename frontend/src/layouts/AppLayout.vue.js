@@ -2,7 +2,7 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 const a = useAuthStore(), r = useRouter(), route = useRoute(), open = ref(false);
-const items = computed(() => [{ to: '/dashboard', label: 'Resumen', icon: '▦' }, { to: '/clientes', label: 'Clientes y vehículos', icon: '◉' }, { to: '/tarifas', label: 'Tablas tarifarias', icon: '%', roles: ['ADMIN', 'ACTUARIO'] }, { to: '/cotizaciones', label: 'Cotizaciones', icon: '◎' }, { to: '/polizas', label: 'Pólizas y siniestros', icon: '▤' }, { to: '/renovaciones', label: 'Renovaciones', icon: '↻' }].filter(i => !i.roles || i.roles.includes(a.role)));
+const items = computed(() => [{ to: '/mi-cuenta', label: 'Mi cuenta', icon: '◈', roles: ['CLIENTE'] }, { to: '/dashboard', label: 'Resumen', icon: '▦', roles: ['ADMIN', 'ACTUARIO', 'AGENTE'] }, { to: '/clientes', label: 'Clientes y vehículos', icon: '◉', roles: ['ADMIN', 'AGENTE'] }, { to: '/tarifas', label: 'Tablas tarifarias', icon: '%', roles: ['ADMIN', 'ACTUARIO'] }, { to: '/cotizaciones', label: 'Cotizaciones', icon: '◎', roles: ['ADMIN', 'AGENTE'] }, { to: '/polizas', label: 'Pólizas y siniestros', icon: '▤', roles: ['ADMIN', 'AGENTE'] }, { to: '/renovaciones', label: 'Renovaciones', icon: '↻', roles: ['ADMIN', 'AGENTE'] }].filter(i => !i.roles || i.roles.includes(a.role)));
 function out() { a.logout(); r.push('/login'); }
 ;
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
