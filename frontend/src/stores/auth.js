@@ -13,7 +13,8 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         token: localStorage.getItem('token') || '',
         role: (localStorage.getItem('role') || ''),
-        username: localStorage.getItem('username') || ''
+        username: localStorage.getItem('username') || '',
+        mfaChallenge: sessionStorage.getItem('mfaChallenge') || ''
     }),
     getters: {
         isAuthenticated: state => Boolean(state.token)
@@ -21,11 +22,24 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         async login(username, password) {
             const { data } = await api.post('/auth/login', { username, password });
-            this.setSession(data.token, username);
+            if (data.requiresMfa) {
+                this.mfaChallenge = data.challengeToken;
+                sessionStorage.setItem('mfaChallenge', data.challengeToken);
+                return false;
+            }
+            this.setSession(data.token.token, username);
+            return true;
         },
         async loginWithGoogle(idToken) {
             const { data } = await api.post('/auth/google', { idToken });
             this.setSession(data.token, parseJwt(data.token).sub || '');
+            return true;
+        },
+        async verifyMfa(codigo) {
+            const { data } = await api.post('/auth/mfa/verificar', { challengeToken: this.mfaChallenge, codigo });
+            this.setSession(data.token, parseJwt(data.token).sub || '');
+            this.mfaChallenge = '';
+            sessionStorage.removeItem('mfaChallenge');
         },
         setSession(token, username) {
             const payload = parseJwt(token);
@@ -43,6 +57,8 @@ export const useAuthStore = defineStore('auth', {
             localStorage.removeItem('token');
             localStorage.removeItem('role');
             localStorage.removeItem('username');
+            this.mfaChallenge = '';
+            sessionStorage.removeItem('mfaChallenge');
         }
     }
 });

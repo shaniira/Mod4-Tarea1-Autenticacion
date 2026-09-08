@@ -5,8 +5,8 @@ import { errorMessage } from '@/services/api';
 const u = ref('admin'), p = ref('Admin123*'), loading = ref(false), error = ref('');
 const a = useAuthStore(), r = useRouter();
 async function go() { loading.value = true; error.value = ''; try {
-    await a.login(u.value.trim(), p.value);
-    r.push('/dashboard');
+    const ok = await a.login(u.value.trim(), p.value);
+    r.push(ok ? (a.role === 'CLIENTE' ? '/mi-cuenta' : '/dashboard') : '/mfa-verification');
 }
 catch (e) {
     error.value = errorMessage(e);
@@ -14,10 +14,9 @@ catch (e) {
 finally {
     loading.value = false;
 } }
-;
 async function onGoogleCredential(response) { loading.value = true; error.value = ''; try {
     await a.loginWithGoogle(response.credential);
-    r.push('/dashboard');
+    r.push(a.role === 'CLIENTE' ? '/mi-cuenta' : '/dashboard');
 }
 catch (e) {
     error.value = errorMessage(e);
@@ -25,7 +24,6 @@ catch (e) {
 finally {
     loading.value = false;
 } }
-;
 onMounted(() => { let intentos = 0; const timer = setInterval(() => { const google = window.google; if (google) {
     clearInterval(timer);
     google.accounts.id.initialize({ client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID, callback: onGoogleCredential });
