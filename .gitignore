@@ -1,3 +1,27 @@
 # Configuración local de asistentes
 .claude/
 
+# Dependencias del frontend
+frontend/node_modules/
+
+# Compilados Java / Maven
+target/
+*.class
+*.jar
+*.war
+
+# Compilados Java / Gradle
+.gradle/
+build/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
