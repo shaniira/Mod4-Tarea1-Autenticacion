@@ -16,6 +16,8 @@ public class UsuarioMongoMapper {
         d.googleSubject = x.getGoogleSubject();
         d.rol = x.getRol();
         d.activo = x.isActivo();
+        d.mfaSecret = x.getMfaSecret();
+        d.mfaHabilitado = x.isMfaHabilitado();
         return d;
     }
 
@@ -28,7 +30,7 @@ public class UsuarioMongoMapper {
                 d.googleSubject,
                 d.rol,
                 d.activo,
-                null,
-                false);
+                d.mfaSecret,
+                d.mfaHabilitado);
     }
 }

@@ -22,4 +22,6 @@ public class UsuarioDocument {
 
     public RolUsuario rol;
     public boolean activo;
+    public String mfaSecret;
+    public boolean mfaHabilitado;
 }
