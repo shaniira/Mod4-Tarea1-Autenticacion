@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '@/services/api';
+import { facebookSessionUrl } from '@/services/facebookAuth';
 import type { Role } from '@/types';
 
 function parseJwt(token: string): Record<string, any> {
@@ -34,6 +35,12 @@ export const useAuthStore = defineStore('auth', {
     },
     async loginWithGoogle(idToken: string) {
       const { data } = await api.post('/auth/google', { idToken });
+      this.setSession(data.token, parseJwt(data.token).sub || '');
+      return true;
+    },
+    // El backend ya validó code/state con Facebook; el ticket temporal solo se canjea una vez por el JWT interno.
+    async exchangeFacebookTicket(ticket: string) {
+      const { data } = await api.post(facebookSessionUrl(), null, { params: { ticket } });
       this.setSession(data.token, parseJwt(data.token).sub || '');
       return true;
     },

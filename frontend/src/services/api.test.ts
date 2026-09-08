@@ -55,6 +55,14 @@ describe('errorMessage', () => {
     );
   });
 
+  it('muestra el mensaje de ticket de Facebook inválido o expirado', () => {
+    const error = axiosError(400, { codigo: 'FACEBOOK_TICKET_INVALIDO' });
+
+    expect(errorMessage(error)).toBe(
+      'El enlace de acceso con Facebook no es válido o expiró. Intenta iniciar sesión nuevamente.'
+    );
+  });
+
   it('informa cuando no existe conexión con el servidor', () => {
     const error = {
       isAxiosError: true,

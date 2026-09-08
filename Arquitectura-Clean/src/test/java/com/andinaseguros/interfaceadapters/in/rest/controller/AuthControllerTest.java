@@ -6,12 +6,14 @@ import static org.mockito.Mockito.*;
 import com.andinaseguros.interfaceadapters.in.rest.request.CrearUsuarioRequest;
 import com.andinaseguros.interfaceadapters.in.rest.request.GoogleLoginRequest;
 import com.andinaseguros.interfaceadapters.in.rest.request.LoginRequest;
+import com.andinaseguros.interfaceadapters.out.external.facebook.FacebookProperties;
 import com.andinaseguros.usecases.dto.CrearUsuarioRequestModel;
 import com.andinaseguros.usecases.dto.GoogleLoginRequestModel;
 import com.andinaseguros.usecases.dto.LoginRequestModel;
 import com.andinaseguros.usecases.dto.Responses.TokenResponse;
 import com.andinaseguros.usecases.dto.Responses.ResultadoLogin;
 import com.andinaseguros.usecases.service.auth.*;
+import com.andinaseguros.usecases.port.out.security.LoginTicketPort;
 import com.andinaseguros.entities.enums.RolUsuario;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +24,19 @@ class AuthControllerTest {
         var autenticacion = mock(AutenticarUsuarioUseCase.class);
         var autenticacionGoogle = mock(AutenticarConGoogleUseCase.class);
         var verificarMfa = mock(VerificarMfaUseCase.class);
-        var controller = new AuthController(registro, autenticacion, autenticacionGoogle, verificarMfa);
+        var facebook = mock(AutenticarConFacebookUseCase.class);
+        var desvincularFacebook = mock(DesvincularFacebookUseCase.class);
+        var loginTickets = mock(LoginTicketPort.class);
+        var facebookProperties = mock(FacebookProperties.class);
+        var controller = new AuthController(
+            registro,
+            autenticacion,
+            autenticacionGoogle,
+            verificarMfa,
+            facebook,
+            desvincularFacebook,
+            loginTickets,
+            facebookProperties);
         var crear = new CrearUsuarioRequest("operador", "secreto", RolUsuario.ADMIN);
         var login = new LoginRequest("operador", "secreto");
         var crearCore = new CrearUsuarioRequestModel("operador", "secreto", RolUsuario.ADMIN);
@@ -41,5 +55,38 @@ class AuthControllerTest {
         verify(registro).execute(crearCore);
         verify(autenticacion).execute(loginCore);
         verify(autenticacionGoogle).execute(googleCore);
+    }
+
+    @Test
+    void callbackFacebookRedirigeConTicketYElCanjeDevuelveElJwt() {
+        var registro = mock(RegistrarUsuarioUseCase.class);
+        var autenticacion = mock(AutenticarUsuarioUseCase.class);
+        var autenticacionGoogle = mock(AutenticarConGoogleUseCase.class);
+        var verificarMfa = mock(VerificarMfaUseCase.class);
+        var facebook = mock(AutenticarConFacebookUseCase.class);
+        var desvincularFacebook = mock(DesvincularFacebookUseCase.class);
+        var loginTickets = mock(LoginTicketPort.class);
+        var facebookProperties = mock(FacebookProperties.class);
+        var controller = new AuthController(
+                registro,
+                autenticacion,
+                autenticacionGoogle,
+                verificarMfa,
+                facebook,
+                desvincularFacebook,
+                loginTickets,
+                facebookProperties);
+        var token = new TokenResponse("jwt", "Bearer", 3600);
+        when(facebook.callback("code", "state")).thenReturn(token);
+        when(loginTickets.create(token)).thenReturn("temporary-ticket");
+        when(facebookProperties.frontendCallbackUrl()).thenReturn("http://localhost:5173/login");
+        when(loginTickets.consume("temporary-ticket")).thenReturn(java.util.Optional.of(token));
+
+        var callback = controller.facebookCallback("code", "state", null);
+
+        assertThat(callback.getStatusCode().value()).isEqualTo(302);
+        assertThat(callback.getHeaders().getLocation())
+                .hasToString("http://localhost:5173/login?ticket=temporary-ticket");
+        assertThat(controller.facebookSession("temporary-ticket")).isEqualTo(token);
     }
 }

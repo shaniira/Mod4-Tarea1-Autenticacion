@@ -11,4 +11,6 @@ public interface UsuarioRepository {
     Optional<Usuario> buscarPorEmail(String email);
 
     Optional<Usuario> buscarPorGoogleSubject(String googleSubject);
+
+    Optional<Usuario> buscarPorProveedorYProveedorUsuarioId(String provider, String providerUserId);
 }

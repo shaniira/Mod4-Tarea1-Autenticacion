@@ -13,6 +13,11 @@ public class Usuario {
     private final boolean activo;
     private final String mfaSecret;
     private final boolean mfaHabilitado;
+    private final String provider;
+    private final String providerUserId;
+    private final String facebookAccessToken;
+    private final long facebookAccessTokenExpiresAt;
+    private final String facebookScopes;
 
     public Usuario(
             UUID id,
@@ -33,6 +38,42 @@ public class Usuario {
         this.activo = activo;
         this.mfaSecret = mfaSecret;
         this.mfaHabilitado = mfaHabilitado;
+    this.provider = null;
+    this.providerUserId = null;
+    this.facebookAccessToken = null;
+    this.facebookAccessTokenExpiresAt = 0;
+    this.facebookScopes = null;
+    }
+
+    public Usuario(
+        UUID id,
+        String username,
+        String email,
+        String passwordHash,
+        String googleSubject,
+        RolUsuario rol,
+        boolean activo,
+        String mfaSecret,
+        boolean mfaHabilitado,
+        String provider,
+        String providerUserId,
+        String facebookAccessToken,
+        long facebookAccessTokenExpiresAt,
+        String facebookScopes) {
+    this.id = id;
+    this.username = username;
+    this.email = email;
+    this.passwordHash = passwordHash;
+    this.googleSubject = googleSubject;
+    this.rol = rol;
+    this.activo = activo;
+    this.mfaSecret = mfaSecret;
+    this.mfaHabilitado = mfaHabilitado;
+    this.provider = provider;
+    this.providerUserId = providerUserId;
+    this.facebookAccessToken = facebookAccessToken;
+    this.facebookAccessTokenExpiresAt = facebookAccessTokenExpiresAt;
+    this.facebookScopes = facebookScopes;
     }
 
     public UUID getId() {
@@ -86,5 +127,62 @@ public class Usuario {
 
     public Usuario sinMfa() {
         return conMfa(null, false);
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public String getProviderUserId() {
+        return providerUserId;
+    }
+
+    public String getFacebookAccessToken() {
+        return facebookAccessToken;
+    }
+
+    public long getFacebookAccessTokenExpiresAt() {
+        return facebookAccessTokenExpiresAt;
+    }
+
+    public String getFacebookScopes() {
+        return facebookScopes;
+    }
+
+    public Usuario conAutorizacionFacebook(
+            String encryptedAccessToken, long expiresAt, String scopes) {
+        return new Usuario(
+            id,
+            username,
+            email,
+            passwordHash,
+            googleSubject,
+            rol,
+            activo,
+            mfaSecret,
+            mfaHabilitado,
+            provider,
+            providerUserId,
+            encryptedAccessToken,
+            expiresAt,
+            scopes);
+    }
+
+    public Usuario sinAutorizacionFacebook() {
+        return new Usuario(
+            id,
+            username,
+            email,
+            passwordHash,
+            googleSubject,
+            rol,
+            activo,
+            mfaSecret,
+            mfaHabilitado,
+            null,
+            null,
+            null,
+            0,
+            null);
     }
 }

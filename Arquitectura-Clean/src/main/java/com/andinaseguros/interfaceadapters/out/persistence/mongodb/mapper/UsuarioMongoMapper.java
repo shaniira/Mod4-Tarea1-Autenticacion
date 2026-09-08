@@ -18,6 +18,11 @@ public class UsuarioMongoMapper {
         d.activo = x.isActivo();
         d.mfaSecret = x.getMfaSecret();
         d.mfaHabilitado = x.isMfaHabilitado();
+        d.provider = x.getProvider();
+        d.providerUserId = x.getProviderUserId();
+        d.facebookAccessToken = x.getFacebookAccessToken();
+        d.facebookAccessTokenExpiresAt = x.getFacebookAccessTokenExpiresAt();
+        d.facebookScopes = x.getFacebookScopes();
         return d;
     }
 
@@ -31,6 +36,11 @@ public class UsuarioMongoMapper {
                 d.rol,
                 d.activo,
                 d.mfaSecret,
-                d.mfaHabilitado);
+                                d.mfaHabilitado,
+                                d.provider,
+                                d.providerUserId,
+                                d.facebookAccessToken,
+                                d.facebookAccessTokenExpiresAt,
+                                d.facebookScopes);
     }
 }

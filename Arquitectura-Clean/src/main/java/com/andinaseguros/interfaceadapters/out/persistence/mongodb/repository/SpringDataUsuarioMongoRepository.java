@@ -10,4 +10,6 @@ public interface SpringDataUsuarioMongoRepository extends MongoRepository<Usuari
     Optional<UsuarioDocument> findByEmail(String email);
 
     Optional<UsuarioDocument> findByGoogleSubject(String googleSubject);
+
+    Optional<UsuarioDocument> findByProviderAndProviderUserId(String provider, String providerUserId);
 }

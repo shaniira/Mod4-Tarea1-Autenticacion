@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
                             "GOOGLE_EMAIL_NO_VERIFICADO",
                             "USUARIO_INACTIVO" -> HttpStatus.UNAUTHORIZED;
                     case "CLIENTE_NO_REGISTRADO" -> HttpStatus.FORBIDDEN;
+                    case "FACEBOOK_CALLBACK_INVALIDO",
+                            "FACEBOOK_IDENTIDAD_INVALIDA",
+                            "FACEBOOK_AUTORIZACION_RECHAZADA",
+                            "FACEBOOK_TICKET_INVALIDO" -> HttpStatus.BAD_REQUEST;
+                    case "VINCULACION_REQUIERE_CONFIRMACION", "USUARIO_DUPLICADO" -> HttpStatus.CONFLICT;
+                    case "FACEBOOK_NO_DISPONIBLE" -> HttpStatus.SERVICE_UNAVAILABLE;
                     default -> HttpStatus.UNPROCESSABLE_ENTITY;
                 };
 

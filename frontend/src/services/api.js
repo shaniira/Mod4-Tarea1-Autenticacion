@@ -11,6 +11,7 @@ const messagesByCode = {
     MFA_NO_CONFIGURADO: 'MFA todavía no está configurado.',
     GOOGLE_TOKEN_INVALIDO: 'No se pudo validar tu cuenta de Google. Intenta nuevamente.',
     GOOGLE_EMAIL_NO_VERIFICADO: 'Tu correo de Google no está verificado.',
+    FACEBOOK_TICKET_INVALIDO: 'El enlace de acceso con Facebook no es válido o expiró. Intenta iniciar sesión nuevamente.',
     USUARIO_INACTIVO: 'Tu cuenta está inactiva. Contacta al administrador.',
     CLIENTE_NO_REGISTRADO: 'Tu correo no está registrado como cliente de Andina Seguros. Contacta a un agente para registrarte.',
     ACCESO_DENEGADO: 'No tienes permisos para realizar esta acción.',

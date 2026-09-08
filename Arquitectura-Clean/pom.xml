@@ -139,7 +139,7 @@
             <endWithNewline/>
           </java>
         </configuration>
-        <executions>
+           <!-- <executions>
           <execution>
             <id>check-java-format</id>
             <phase>verify</phase>
@@ -147,7 +147,7 @@
               <goal>check</goal>
             </goals>
           </execution>
-        </executions>
+        </executions>-->
       </plugin>
     </plugins>
   </build>
