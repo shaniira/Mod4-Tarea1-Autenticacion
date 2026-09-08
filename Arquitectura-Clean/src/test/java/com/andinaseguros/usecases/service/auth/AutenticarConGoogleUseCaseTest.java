@@ -68,7 +68,9 @@ class AutenticarConGoogleUseCaseTest {
                         null,
                         "sub-1",
                         RolUsuario.CLIENTE,
-                        true);
+                        true,
+                        null,
+                        false);
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-1", "a@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-1")).thenReturn(Optional.of(existente));
         when(tokenGenerator.generar(new AuthenticatedUser("a@x.com", "CLIENTE")))
@@ -93,6 +95,8 @@ class AutenticarConGoogleUseCaseTest {
                         null,
                         "sub-1",
                         RolUsuario.CLIENTE,
+                        false,
+                        null,
                         false);
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-1", "a@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-1")).thenReturn(Optional.of(inactivo));
@@ -142,7 +146,9 @@ class AutenticarConGoogleUseCaseTest {
                         "hash-bcrypt",
                         null,
                         RolUsuario.CLIENTE,
-                        true);
+                        true,
+                        null,
+                        false);
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-1", "a@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-1")).thenReturn(Optional.empty());
         when(usuarios.buscarPorEmail("a@x.com")).thenReturn(Optional.of(cuentaLocal));
@@ -172,7 +178,9 @@ class AutenticarConGoogleUseCaseTest {
                         null,
                         null,
                         RolUsuario.AGENTE,
-                        true);
+                        true,
+                        null,
+                        false);
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-agente", "agente@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-agente")).thenReturn(Optional.empty());
         when(usuarios.buscarPorEmail("agente@x.com")).thenReturn(Optional.of(cuentaProvisionada));

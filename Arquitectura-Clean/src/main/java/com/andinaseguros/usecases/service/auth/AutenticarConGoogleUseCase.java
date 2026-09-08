@@ -74,7 +74,9 @@ public class AutenticarConGoogleUseCase {
                         null,
                         identidad.subject(),
                         RolUsuario.CLIENTE,
-                        true));
+                        true,
+                        null,
+                        false));
     }
 
     private Usuario vincularGoogleAUsuarioExistente(Usuario existente, String googleSubject) {
@@ -86,7 +88,9 @@ public class AutenticarConGoogleUseCase {
                         existente.getPasswordHash(),
                         googleSubject,
                         existente.getRol(),
-                        existente.isActivo()));
+                        existente.isActivo(),
+                        existente.getMfaSecret(),
+                        existente.isMfaHabilitado()));
     }
 
     private ReglaNegocioException tokenInvalido() {

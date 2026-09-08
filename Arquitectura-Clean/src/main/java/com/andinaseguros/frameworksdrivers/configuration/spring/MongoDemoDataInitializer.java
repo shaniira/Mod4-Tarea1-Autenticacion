@@ -324,7 +324,9 @@ public class MongoDemoDataInitializer implements ApplicationRunner {
                             passwordEncoder.codificar("Admin123*"),
                             null,
                             RolUsuario.ADMIN,
-                            true));
+                            true,
+                            null,
+                            false));
         }
     }
 

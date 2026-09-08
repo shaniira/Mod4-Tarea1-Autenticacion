@@ -31,6 +31,8 @@ public class RegistrarUsuarioUseCase {
                         passwordEncoder.codificar(solicitud.password()),
                         null,
                         solicitud.rol(),
-                        true));
+                        true,
+                        null,
+                        false));
     }
 }

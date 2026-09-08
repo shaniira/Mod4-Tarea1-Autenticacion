@@ -11,6 +11,8 @@ public class Usuario {
     private final String googleSubject;
     private final RolUsuario rol;
     private final boolean activo;
+    private final String mfaSecret;
+    private final boolean mfaHabilitado;
 
     public Usuario(
             UUID id,
@@ -19,7 +21,9 @@ public class Usuario {
             String passwordHash,
             String googleSubject,
             RolUsuario rol,
-            boolean activo) {
+            boolean activo,
+            String mfaSecret,
+            boolean mfaHabilitado) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -27,6 +31,8 @@ public class Usuario {
         this.googleSubject = googleSubject;
         this.rol = rol;
         this.activo = activo;
+        this.mfaSecret = mfaSecret;
+        this.mfaHabilitado = mfaHabilitado;
     }
 
     public UUID getId() {
@@ -55,5 +61,30 @@ public class Usuario {
 
     public boolean isActivo() {
         return activo;
+    }
+
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public boolean isMfaHabilitado() {
+        return mfaHabilitado;
+    }
+
+    public Usuario conMfa(String secret, boolean habilitado) {
+        return new Usuario(
+                id,
+                username,
+                email,
+                passwordHash,
+                googleSubject,
+                rol,
+                activo,
+                secret,
+                habilitado);
+    }
+
+    public Usuario sinMfa() {
+        return conMfa(null, false);
     }
 }

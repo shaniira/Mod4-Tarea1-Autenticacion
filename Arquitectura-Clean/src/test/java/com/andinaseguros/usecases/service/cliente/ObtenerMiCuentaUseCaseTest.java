@@ -42,7 +42,9 @@ class ObtenerMiCuentaUseCaseTest {
                         null,
                         "sub-1",
                         RolUsuario.CLIENTE,
-                        true);
+                        true,
+                        null,
+                        false);
         when(usuarios.buscarPorUsername("a@x.com")).thenReturn(Optional.of(usuario));
         when(clientes.buscarPorCorreo("a@x.com")).thenReturn(Optional.empty());
 
@@ -58,7 +60,15 @@ class ObtenerMiCuentaUseCaseTest {
         var clienteId = UUID.randomUUID();
         var usuario =
                 new Usuario(
-                        UUID.randomUUID(), "a@x.com", "a@x.com", null, "sub-1", RolUsuario.CLIENTE, true);
+                        UUID.randomUUID(),
+                        "a@x.com",
+                        "a@x.com",
+                        null,
+                        "sub-1",
+                        RolUsuario.CLIENTE,
+                        true,
+                        null,
+                        false);
         var cliente =
                 new Cliente(
                         clienteId,
@@ -99,7 +109,15 @@ class ObtenerMiCuentaUseCaseTest {
         var clienteId = UUID.randomUUID();
         var usuario =
                 new Usuario(
-                        UUID.randomUUID(), "a@x.com", "a@x.com", null, "sub-1", RolUsuario.CLIENTE, true);
+                        UUID.randomUUID(),
+                        "a@x.com",
+                        "a@x.com",
+                        null,
+                        "sub-1",
+                        RolUsuario.CLIENTE,
+                        true,
+                        null,
+                        false);
         var cliente =
                 new Cliente(
                         clienteId,

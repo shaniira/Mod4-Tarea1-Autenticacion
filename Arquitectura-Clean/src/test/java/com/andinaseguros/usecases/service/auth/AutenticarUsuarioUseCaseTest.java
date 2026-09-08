@@ -33,7 +33,9 @@ class AutenticarUsuarioUseCaseTest {
                         "hash-bcrypt",
                         null,
                         RolUsuario.ADMIN,
-                        true);
+                        true,
+                        null,
+                        false);
         when(usuarios.buscarPorUsername("admin")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.coincide("Admin123*", "hash-bcrypt")).thenReturn(true);
         when(tokenGenerator.generar(new AuthenticatedUser("admin", "ADMIN")))
@@ -68,6 +70,8 @@ class AutenticarUsuarioUseCaseTest {
                         "hash-bcrypt",
                         null,
                         RolUsuario.ADMIN,
+                        false,
+                        null,
                         false);
         when(usuarios.buscarPorUsername("admin")).thenReturn(Optional.of(usuario));
 
@@ -87,7 +91,9 @@ class AutenticarUsuarioUseCaseTest {
                         "hash-bcrypt",
                         null,
                         RolUsuario.ADMIN,
-                        true);
+                        true,
+                        null,
+                        false);
         when(usuarios.buscarPorUsername("admin")).thenReturn(Optional.of(usuario));
         when(passwordEncoder.coincide("Admin123*", "hash-bcrypt")).thenReturn(false);
 
@@ -107,7 +113,9 @@ class AutenticarUsuarioUseCaseTest {
                         null,
                         "sub-1",
                         RolUsuario.CLIENTE,
-                        true);
+                        true,
+                        null,
+                        false);
         when(usuarios.buscarPorUsername("admin")).thenReturn(Optional.of(usuarioSoloGoogle));
 
         assertThatThrownBy(() -> useCase.execute(solicitud))

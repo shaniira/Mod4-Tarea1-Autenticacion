@@ -27,6 +27,8 @@ public class UsuarioMongoMapper {
                 d.passwordHash,
                 d.googleSubject,
                 d.rol,
-                d.activo);
+                d.activo,
+                null,
+                false);
     }
 }
