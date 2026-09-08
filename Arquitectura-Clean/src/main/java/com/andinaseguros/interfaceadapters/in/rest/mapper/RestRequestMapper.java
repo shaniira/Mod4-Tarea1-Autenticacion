@@ -47,4 +47,8 @@ public final class RestRequestMapper {
     public static GoogleLoginRequestModel toCore(GoogleLoginRequest value) {
         return new GoogleLoginRequestModel(value.idToken());
     }
+
+    public static MfaVerifyRequestModel toCore(MfaVerifyRequest value) {
+        return new MfaVerifyRequestModel(value.challengeToken(), value.codigo());
+    }
 }

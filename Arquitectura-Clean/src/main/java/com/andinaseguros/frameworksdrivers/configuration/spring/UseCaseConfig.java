@@ -5,6 +5,8 @@ import com.andinaseguros.usecases.service.ConsultarInformacionVehiculoService;
 import com.andinaseguros.usecases.service.auth.AutenticarConGoogleUseCase;
 import com.andinaseguros.usecases.service.auth.AutenticarUsuarioUseCase;
 import com.andinaseguros.usecases.service.auth.RegistrarUsuarioUseCase;
+import com.andinaseguros.usecases.service.auth.VerificarMfaUseCase;
+import com.andinaseguros.usecases.service.mfa.*;
 import com.andinaseguros.usecases.service.cliente.CrearClienteUseCase;
 import com.andinaseguros.usecases.service.cliente.ListarClientesUseCase;
 import com.andinaseguros.usecases.service.cliente.ObtenerClienteUseCase;
@@ -51,6 +53,7 @@ import com.andinaseguros.interfaceadapters.out.notification.*;
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.adapter.ClienteContactMongoAdapter;
 import com.andinaseguros.interfaceadapters.out.security.*;
 import com.andinaseguros.interfaceadapters.out.security.google.GoogleIdentityVerifierAdapter;
+import com.andinaseguros.interfaceadapters.out.security.mfa.*;
 import com.andinaseguros.interfaceadapters.out.time.SystemClockAdapter;
 import com.andinaseguros.usecases.port.out.contact.ClienteContactPort;
 import com.andinaseguros.usecases.port.out.event.DomainEventPublisherPort;
@@ -91,6 +94,17 @@ public class UseCaseConfig {
     }
 
     @Bean
+    TotpSecurityAdapter totpSecurityAdapter() { return new TotpSecurityAdapter(); }
+
+    @Bean
+    QrCodeGeneratorPort qrCodeGeneratorPort() { return new ZxingQrCodeAdapter(); }
+
+    @Bean
+    MfaChallengePort mfaChallengePort(ClockPort clock, @Value("${app.mfa.challenge-expiration-seconds:300}") long expiration) {
+        return new InMemoryMfaChallengeAdapter(clock, expiration);
+    }
+
+    @Bean
     JwtTokenAdapter jwtTokenAdapter(
             @Value("${app.jwt.secret}") String secret,
             @Value("${app.jwt.expiration-seconds:3600}") long expiration,
@@ -108,8 +122,28 @@ public class UseCaseConfig {
     AutenticarUsuarioUseCase autenticarUsuario(
             UsuarioRepository usuarios,
             PasswordEncoderPort passwordEncoder,
-            TokenGeneratorPort tokenGenerator) {
-        return new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator);
+            TokenGeneratorPort tokenGenerator,
+            MfaChallengePort challenges) {
+        return new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator, challenges);
+    }
+
+    @Bean
+    ConfigurarMfaUseCase configurarMfa(UsuarioRepository usuarios, MfaSecretGeneratorPort secrets, QrCodeGeneratorPort qr) {
+        return new ConfigurarMfaUseCase(usuarios, secrets, qr);
+    }
+
+    @Bean
+    ActivarMfaUseCase activarMfa(UsuarioRepository usuarios, TotpVerifierPort totp) { return new ActivarMfaUseCase(usuarios, totp); }
+
+    @Bean
+    DesactivarMfaUseCase desactivarMfa(UsuarioRepository usuarios, TotpVerifierPort totp) { return new DesactivarMfaUseCase(usuarios, totp); }
+
+    @Bean
+    ObtenerEstadoMfaUseCase obtenerEstadoMfa(UsuarioRepository usuarios) { return new ObtenerEstadoMfaUseCase(usuarios); }
+
+    @Bean
+    VerificarMfaUseCase verificarMfa(UsuarioRepository usuarios, MfaChallengePort challenges, TotpVerifierPort totp, TokenGeneratorPort tokens) {
+        return new VerificarMfaUseCase(usuarios, challenges, totp, tokens);
     }
 
     @Bean

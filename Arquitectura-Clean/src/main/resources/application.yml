@@ -14,6 +14,8 @@ app:
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
     issuer: https://accounts.google.com
+  mfa:
+    challenge-expiration-seconds: ${MFA_CHALLENGE_EXPIRATION_SECONDS:300}
   notification:
     adapter: whatsapp
   whatsapp:
