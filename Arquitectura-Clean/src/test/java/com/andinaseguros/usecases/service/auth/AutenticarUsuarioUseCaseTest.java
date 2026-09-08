@@ -11,6 +11,8 @@ import com.andinaseguros.usecases.port.out.repository.UsuarioRepository;
 import com.andinaseguros.usecases.port.out.security.AuthenticatedUser;
 import com.andinaseguros.usecases.port.out.security.PasswordEncoderPort;
 import com.andinaseguros.usecases.port.out.security.TokenGeneratorPort;
+import com.andinaseguros.usecases.port.out.security.MfaChallengePort;
+import com.andinaseguros.usecases.port.out.security.MfaChallenge;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,9 @@ class AutenticarUsuarioUseCaseTest {
     private final UsuarioRepository usuarios = mock(UsuarioRepository.class);
     private final PasswordEncoderPort passwordEncoder = mock(PasswordEncoderPort.class);
     private final TokenGeneratorPort tokenGenerator = mock(TokenGeneratorPort.class);
+    private final MfaChallengePort challenges = mock(MfaChallengePort.class);
     private final AutenticarUsuarioUseCase useCase =
-            new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator);
+            new AutenticarUsuarioUseCase(usuarios, passwordEncoder, tokenGenerator, challenges);
     private final LoginRequestModel solicitud = new LoginRequestModel("admin", "Admin123*");
 
     @Test
@@ -44,8 +47,26 @@ class AutenticarUsuarioUseCaseTest {
 
         var respuesta = useCase.execute(solicitud);
 
-        assertThat(respuesta.token()).isEqualTo("jwt-andina");
-        assertThat(respuesta.tipo()).isEqualTo("Bearer");
+        assertThat(respuesta.requiresMfa()).isFalse();
+        assertThat(respuesta.token().token()).isEqualTo("jwt-andina");
+        assertThat(respuesta.token().tipo()).isEqualTo("Bearer");
+    }
+
+    @Test
+    void solicitaSegundoFactorCuandoMfaEstaHabilitado() {
+        var usuario = new Usuario(UUID.randomUUID(), "admin", null, "hash-bcrypt", null,
+                RolUsuario.ADMIN, true, "SECRET", true);
+        when(usuarios.buscarPorUsername("admin")).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.coincide("Admin123*", "hash-bcrypt")).thenReturn(true);
+        when(challenges.crear(new AuthenticatedUser("admin", "ADMIN")))
+                .thenReturn(new MfaChallenge("challenge", 300));
+
+        var respuesta = useCase.execute(solicitud);
+
+        assertThat(respuesta.requiresMfa()).isTrue();
+        assertThat(respuesta.challengeToken()).isEqualTo("challenge");
+        assertThat(respuesta.token()).isNull();
+        verifyNoInteractions(tokenGenerator);
     }
 
     @Test
