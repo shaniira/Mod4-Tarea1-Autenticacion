@@ -5,6 +5,20 @@
 
 ---
 
+## 0. Persistencia de los datos: qué sobrevive a un `docker compose down`
+
+- `docker compose down` (sin `-v`) **no borra los datos** — solo detiene y elimina los contenedores. El volumen con nombre fijo `andina_clean_mongo_data` sigue en disco. Al volver a hacer `docker compose up`, MongoDB se reconecta al mismo volumen y todo sigue igual (usuarios, clientes, pólizas).
+- Lo único que sí borra los datos es `docker compose down -v`, borrar el volumen a mano (`docker volume rm andina_clean_mongo_data`), o resetear/desinstalar Docker Desktop.
+- **Respaldo adicional en archivo, independiente del volumen:** [`doc/respaldo-datos-prueba.js`](respaldo-datos-prueba.js) contiene un script de `mongosh` con todos los usuarios y datos de esta tabla, listo para restaurar en **cualquier máquina y en cualquier momento**, incluso si el volumen se perdiera por completo:
+
+  ```bash
+  docker exec -i andina-clean-mongodb mongosh andina_seguros_clean < doc/respaldo-datos-prueba.js
+  ```
+
+  Es seguro correrlo varias veces (usa `upsert`, no duplica nada). Este archivo sí queda versionado en git — es tu copia de seguridad real "para tenerlos cualquier día", sin depender de que el volumen de Docker sobreviva.
+
+---
+
 ## 1. Usuarios para probar
 
 | Correo / usuario | Contraseña | Rol | Login con contraseña | Login con Google | Notas |
