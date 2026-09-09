@@ -36,7 +36,7 @@ RUN pnpm install \
 
 COPY . .
 
-ARG VITE_API_URL=http://localhost:8080/api
+ARG VITE_API_URL=http://localhost:8083/api
 ENV VITE_API_URL=${VITE_API_URL}
 
 RUN pnpm run test \

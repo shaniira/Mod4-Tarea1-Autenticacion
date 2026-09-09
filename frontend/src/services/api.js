@@ -35,7 +35,7 @@ const messagesByCode = {
     ERROR_INTERNO: 'No pudimos completar la operación. Inténtalo nuevamente.'
 };
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8083/api',
     timeout: 15000,
     headers: { 'Content-Type': 'application/json' }
 });
