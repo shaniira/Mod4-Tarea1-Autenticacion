@@ -38,6 +38,8 @@ public class GoogleIdentityVerifierAdapter implements GoogleIdentityVerifierPort
                 jwt.getClaimAsString("email"),
                 Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified")),
                 jwt.getClaimAsString("name"),
+                jwt.getClaimAsString("given_name"),
+                jwt.getClaimAsString("family_name"),
                 jwt.getClaimAsString("picture"));
     }
 }

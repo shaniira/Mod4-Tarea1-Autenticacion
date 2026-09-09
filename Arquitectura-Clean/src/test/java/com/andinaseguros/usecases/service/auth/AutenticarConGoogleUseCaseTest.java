@@ -31,7 +31,7 @@ class AutenticarConGoogleUseCaseTest {
     private final GoogleLoginRequestModel solicitud = new GoogleLoginRequestModel("id-token");
 
     private GoogleIdentity identidad(String subject, String email, boolean emailVerified) {
-        return new GoogleIdentity(subject, email, emailVerified, "Usuario Demo", "https://pic");
+        return new GoogleIdentity(subject, email, emailVerified, "Usuario Demo", "Usuario", "Demo", "https://pic");
     }
 
     @Test
@@ -62,15 +62,16 @@ class AutenticarConGoogleUseCaseTest {
     void autenticaUnUsuarioGoogleExistenteYActivo() {
         var existente =
                 new Usuario(
-                        UUID.randomUUID(),
-                        "a@x.com",
-                        "a@x.com",
-                        null,
-                        "sub-1",
-                        RolUsuario.CLIENTE,
-                        true,
-                        null,
-                        false);
+                                UUID.randomUUID(),
+                                "a@x.com",
+                                "a@x.com",
+                                null,
+                                "sub-1",
+                                RolUsuario.CLIENTE,
+                                true,
+                                null,
+                                false)
+                        .conNombre("Usuario", "Demo");
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-1", "a@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-1")).thenReturn(Optional.of(existente));
         when(tokenGenerator.generar(new AuthenticatedUser("a@x.com", "CLIENTE")))
@@ -89,15 +90,16 @@ class AutenticarConGoogleUseCaseTest {
     void rechazaUnUsuarioGoogleExistenteInactivo() {
         var inactivo =
                 new Usuario(
-                        UUID.randomUUID(),
-                        "a@x.com",
-                        "a@x.com",
-                        null,
-                        "sub-1",
-                        RolUsuario.CLIENTE,
-                        false,
-                        null,
-                        false);
+                                UUID.randomUUID(),
+                                "a@x.com",
+                                "a@x.com",
+                                null,
+                                "sub-1",
+                                RolUsuario.CLIENTE,
+                                false,
+                                null,
+                                false)
+                        .conNombre("Usuario", "Demo");
         when(verifier.verificar("id-token")).thenReturn(identidad("sub-1", "a@x.com", true));
         when(usuarios.buscarPorGoogleSubject("sub-1")).thenReturn(Optional.of(inactivo));
 

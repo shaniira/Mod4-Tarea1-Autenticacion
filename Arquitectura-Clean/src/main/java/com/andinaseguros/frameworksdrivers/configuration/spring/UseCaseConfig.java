@@ -8,6 +8,7 @@ import com.andinaseguros.usecases.service.auth.AutenticarConFacebookUseCase;
 import com.andinaseguros.usecases.service.auth.DesvincularFacebookUseCase;
 import com.andinaseguros.usecases.service.auth.RegistrarUsuarioUseCase;
 import com.andinaseguros.usecases.service.auth.VerificarMfaUseCase;
+import com.andinaseguros.usecases.service.auth.ObtenerPerfilUseCase;
 import com.andinaseguros.usecases.service.mfa.*;
 import com.andinaseguros.usecases.service.cliente.CrearClienteUseCase;
 import com.andinaseguros.usecases.service.cliente.ListarClientesUseCase;
@@ -69,12 +70,16 @@ import com.andinaseguros.usecases.port.out.time.ClockPort;
 import com.andinaseguros.usecases.port.out.vehicle.VehicleInformationPort;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.client.RestClient;
@@ -152,6 +157,11 @@ public class UseCaseConfig {
     }
 
     @Bean
+    ObtenerPerfilUseCase obtenerPerfil(UsuarioRepository usuarios) {
+        return new ObtenerPerfilUseCase(usuarios);
+    }
+
+    @Bean
     GoogleIdentityVerifierPort googleIdentityVerifierPort(
             @Value("${app.google.client-id}") String clientId,
             @Value("${app.google.issuer:https://accounts.google.com}") String issuer) {
@@ -188,7 +198,25 @@ public class UseCaseConfig {
 
     @Bean
     FacebookOAuthPort facebookOAuthPort(FacebookProperties properties) {
-        return new FacebookOAuthAdapter(RestClient.builder().build(), properties);
+        // El Graph API de Facebook responde con "text/javascript" en vez de "application/json"
+        // en algunos endpoints (comportamiento heredado de JSONP); sin este ajuste el
+        // conversor Jackson por defecto rechaza el cuerpo aunque sea JSON válido.
+        RestClient client =
+                RestClient.builder()
+                        .messageConverters(
+                                converters ->
+                                        converters.stream()
+                                                .filter(MappingJackson2HttpMessageConverter.class::isInstance)
+                                                .map(MappingJackson2HttpMessageConverter.class::cast)
+                                                .forEach(
+                                                        converter -> {
+                                                            List<MediaType> mediaTypes =
+                                                                    new ArrayList<>(converter.getSupportedMediaTypes());
+                                                            mediaTypes.add(MediaType.valueOf("text/javascript"));
+                                                            converter.setSupportedMediaTypes(mediaTypes);
+                                                        }))
+                        .build();
+        return new FacebookOAuthAdapter(client, properties);
     }
 
     @Bean

@@ -135,6 +135,9 @@ public final class Responses {
 
     public record MfaSetupResponse(String secret, String otpauthUri, String qrCodeDataUri) {}
 
+    public record PerfilResponse(
+            String username, String rol, String nombres, String apellidos, String email) {}
+
     public record MfaStatusResponse(boolean habilitado) {}
 
     public record PolizaConRenovacionesResponse(

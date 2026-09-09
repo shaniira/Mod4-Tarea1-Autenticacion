@@ -17,6 +17,9 @@ public class UsuarioDocument {
     @Indexed(unique = true, sparse = true)
     public String email;
 
+    public String nombres;
+    public String apellidos;
+
     public String passwordHash;
 
     @Indexed(unique = true, sparse = true)

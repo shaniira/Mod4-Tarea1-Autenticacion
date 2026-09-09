@@ -12,6 +12,8 @@ public class UsuarioMongoMapper {
         d.id = x.getId().toString();
         d.username = x.getUsername();
         d.email = x.getEmail();
+        d.nombres = x.getNombres();
+        d.apellidos = x.getApellidos();
         d.passwordHash = x.getPasswordHash();
         d.googleSubject = x.getGoogleSubject();
         d.rol = x.getRol();
@@ -31,16 +33,18 @@ public class UsuarioMongoMapper {
                 UUID.fromString(d.id),
                 d.username,
                 d.email,
+                d.nombres,
+                d.apellidos,
                 d.passwordHash,
                 d.googleSubject,
                 d.rol,
                 d.activo,
                 d.mfaSecret,
-                                d.mfaHabilitado,
-                                d.provider,
-                                d.providerUserId,
-                                d.facebookAccessToken,
-                                d.facebookAccessTokenExpiresAt,
-                                d.facebookScopes);
+                d.mfaHabilitado,
+                d.provider,
+                d.providerUserId,
+                d.facebookAccessToken,
+                d.facebookAccessTokenExpiresAt,
+                d.facebookScopes);
     }
 }

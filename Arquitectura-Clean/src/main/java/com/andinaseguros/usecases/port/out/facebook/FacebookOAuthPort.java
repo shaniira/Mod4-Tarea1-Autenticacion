@@ -9,5 +9,12 @@ public interface FacebookOAuthPort {
     FacebookIdentity exchangeCode(String code);
 
     record FacebookIdentity(
-            String id, String email, String name, String accessToken, Instant expiresAt, Set<String> scopes) {}
+            String id,
+            String email,
+            String name,
+            String firstName,
+            String lastName,
+            String accessToken,
+            Instant expiresAt,
+            Set<String> scopes) {}
 }

@@ -73,7 +73,7 @@ class FacebookLoginUseCaseScenariosTest {
         var fixture = fixture();
         when(fixture.states.consume("state")).thenReturn(true);
         when(fixture.facebook.exchangeCode("code"))
-                .thenReturn(new FacebookOAuthPort.FacebookIdentity("", null, null, "token", Instant.now(), Set.of("public_profile")));
+                .thenReturn(new FacebookOAuthPort.FacebookIdentity("", null, null, null, null, "token", Instant.now(), Set.of("public_profile")));
 
         assertThatThrownBy(() -> fixture.useCase.callback("code", "state"))
                 .isInstanceOf(ReglaNegocioException.class)
@@ -86,7 +86,7 @@ class FacebookLoginUseCaseScenariosTest {
         var fixture = fixture();
         when(fixture.states.consume("state")).thenReturn(true);
         when(fixture.facebook.exchangeCode("code"))
-                .thenReturn(new FacebookOAuthPort.FacebookIdentity("123", null, null, "token", Instant.now(), Set.of()));
+                .thenReturn(new FacebookOAuthPort.FacebookIdentity("123", null, null, null, null, "token", Instant.now(), Set.of()));
 
         assertThatThrownBy(() -> fixture.useCase.callback("code", "state"))
                 .isInstanceOf(ReglaNegocioException.class)
@@ -131,7 +131,7 @@ class FacebookLoginUseCaseScenariosTest {
     }
 
     private FacebookOAuthPort.FacebookIdentity identity() {
-        return new FacebookOAuthPort.FacebookIdentity("123", "user@example.com", "User",
+        return new FacebookOAuthPort.FacebookIdentity("123", "user@example.com", "User", "User", "Example",
                 "facebook-token", Instant.now().plusSeconds(3600), Set.of("email", "public_profile"));
     }
 

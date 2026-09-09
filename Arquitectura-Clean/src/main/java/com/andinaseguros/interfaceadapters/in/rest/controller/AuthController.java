@@ -4,6 +4,7 @@ import com.andinaseguros.interfaceadapters.in.rest.request.*;
 import static com.andinaseguros.interfaceadapters.in.rest.mapper.RestRequestMapper.toCore;
 import com.andinaseguros.usecases.dto.Responses.TokenResponse;
 import com.andinaseguros.usecases.dto.Responses.ResultadoLogin;
+import com.andinaseguros.usecases.dto.Responses.PerfilResponse;
 import com.andinaseguros.usecases.service.auth.*;
 import com.andinaseguros.entities.exception.ReglaNegocioException;
 import com.andinaseguros.interfaceadapters.out.external.facebook.FacebookProperties;
@@ -24,6 +25,7 @@ public class AuthController {
     private final VerificarMfaUseCase verificarMfa;
     private final AutenticarConFacebookUseCase autenticarConFacebook;
     private final DesvincularFacebookUseCase desvincularFacebook;
+    private final ObtenerPerfilUseCase obtenerPerfil;
     private final LoginTicketPort loginTickets;
     private final FacebookProperties facebookProperties;
 
@@ -34,6 +36,7 @@ public class AuthController {
             VerificarMfaUseCase verificarMfa,
             AutenticarConFacebookUseCase autenticarConFacebook,
             DesvincularFacebookUseCase desvincularFacebook,
+            ObtenerPerfilUseCase obtenerPerfil,
             LoginTicketPort loginTickets,
             FacebookProperties facebookProperties) {
         this.registrarUsuario = registrarUsuario;
@@ -42,6 +45,7 @@ public class AuthController {
         this.verificarMfa = verificarMfa;
         this.autenticarConFacebook = autenticarConFacebook;
         this.desvincularFacebook = desvincularFacebook;
+        this.obtenerPerfil = obtenerPerfil;
         this.loginTickets = loginTickets;
         this.facebookProperties = facebookProperties;
     }
@@ -105,6 +109,12 @@ public class AuthController {
     public ResponseEntity<Void> desvincularFacebook(Authentication authentication) {
         desvincularFacebook.execute(authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public PerfilResponse me(Authentication authentication) {
+        return obtenerPerfil.execute(authentication.getName());
     }
 
     @PostMapping("/logout")

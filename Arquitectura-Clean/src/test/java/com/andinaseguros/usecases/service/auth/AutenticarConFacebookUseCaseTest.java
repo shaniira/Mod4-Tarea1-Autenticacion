@@ -30,7 +30,7 @@ class AutenticarConFacebookUseCaseTest {
         var encryption = mock(SecretEncryptionPort.class);
         var tokens = mock(TokenGeneratorPort.class);
         var useCase = new AutenticarConFacebookUseCase(states, facebook, users, ids, encryption, tokens);
-        var identity = new FacebookOAuthPort.FacebookIdentity("123", "user@example.com", "User", "facebook-token", Instant.now().plusSeconds(3600), Set.of("email"));
+        var identity = new FacebookOAuthPort.FacebookIdentity("123", "user@example.com", "User", "User", "Example", "facebook-token", Instant.now().plusSeconds(3600), Set.of("email"));
         when(states.create()).thenReturn("state");
         when(facebook.authorizationUrl("state")).thenReturn("https://facebook.example/oauth");
         when(states.consume("state")).thenReturn(true);

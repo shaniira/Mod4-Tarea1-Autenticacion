@@ -39,6 +39,7 @@ public class AutenticarConGoogleUseCase {
 
         Usuario usuario =
                 usuarios.buscarPorGoogleSubject(identidad.subject())
+                        .map(existente -> actualizarNombreSiCambio(existente, identidad))
                         .orElseGet(() -> vincularOCrearUsuario(identidad));
 
         if (!usuario.isActivo()) {
@@ -61,7 +62,7 @@ public class AutenticarConGoogleUseCase {
     private Usuario vincularOCrearUsuario(GoogleIdentity identidad) {
         var existente = usuarios.buscarPorEmail(identidad.email());
         if (existente.isPresent()) {
-            return vincularGoogleAUsuarioExistente(existente.get(), identidad.subject());
+            return vincularGoogleAUsuarioExistente(existente.get(), identidad);
         }
         if (clientes.buscarPorCorreo(identidad.email()).isEmpty()) {
             throw clienteNoRegistrado();
@@ -76,21 +77,25 @@ public class AutenticarConGoogleUseCase {
                         RolUsuario.CLIENTE,
                         true,
                         null,
-                        false));
+                        false)
+                        .conNombre(identidad.givenName(), identidad.familyName()));
     }
 
-    private Usuario vincularGoogleAUsuarioExistente(Usuario existente, String googleSubject) {
+    private Usuario vincularGoogleAUsuarioExistente(Usuario existente, GoogleIdentity identidad) {
         return usuarios.guardar(
-                new Usuario(
-                        existente.getId(),
-                        existente.getUsername(),
-                        existente.getEmail(),
-                        existente.getPasswordHash(),
-                        googleSubject,
-                        existente.getRol(),
-                        existente.isActivo(),
-                        existente.getMfaSecret(),
-                        existente.isMfaHabilitado()));
+                existente
+                        .conGoogleSubject(identidad.subject())
+                        .conNombre(identidad.givenName(), identidad.familyName()));
+    }
+
+    private Usuario actualizarNombreSiCambio(Usuario usuario, GoogleIdentity identidad) {
+        if (identidad.givenName() == null || identidad.givenName().isBlank()) {
+            return usuario;
+        }
+        boolean sinCambios =
+                identidad.givenName().equals(usuario.getNombres())
+                        && java.util.Objects.equals(identidad.familyName(), usuario.getApellidos());
+        return sinCambios ? usuario : usuarios.guardar(usuario.conNombre(identidad.givenName(), identidad.familyName()));
     }
 
     private ReglaNegocioException tokenInvalido() {

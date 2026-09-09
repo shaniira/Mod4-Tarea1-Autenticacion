@@ -82,14 +82,23 @@ public class AutenticarConFacebookUseCase {
                 identity.id(),
                 encryption.encrypt(identity.accessToken()),
                 identity.expiresAt() == null ? 0 : identity.expiresAt().getEpochSecond(),
-                String.join(",", identity.scopes()));
+                String.join(",", identity.scopes()))
+                .conNombre(identity.firstName(), identity.lastName());
         return usuarios.guardar(usuario);
     }
 
     private Usuario actualizarAutorizacion(
             Usuario usuario, FacebookOAuthPort.FacebookIdentity identity) {
+        var actualizado =
+                identity.email() != null && !identity.email().isBlank()
+                        ? usuario.conEmail(identity.email())
+                        : usuario;
+        actualizado =
+                identity.firstName() != null && !identity.firstName().isBlank()
+                        ? actualizado.conNombre(identity.firstName(), identity.lastName())
+                        : actualizado;
         return usuarios.guardar(
-                usuario.conAutorizacionFacebook(
+                actualizado.conAutorizacionFacebook(
                         encryption.encrypt(identity.accessToken()),
                         identity.expiresAt() == null ? 0 : identity.expiresAt().getEpochSecond(),
                         String.join(",", identity.scopes())));

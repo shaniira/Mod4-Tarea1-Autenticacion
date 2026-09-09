@@ -26,6 +26,7 @@ class AuthControllerTest {
         var verificarMfa = mock(VerificarMfaUseCase.class);
         var facebook = mock(AutenticarConFacebookUseCase.class);
         var desvincularFacebook = mock(DesvincularFacebookUseCase.class);
+        var obtenerPerfil = mock(ObtenerPerfilUseCase.class);
         var loginTickets = mock(LoginTicketPort.class);
         var facebookProperties = mock(FacebookProperties.class);
         var controller = new AuthController(
@@ -35,6 +36,7 @@ class AuthControllerTest {
             verificarMfa,
             facebook,
             desvincularFacebook,
+            obtenerPerfil,
             loginTickets,
             facebookProperties);
         var crear = new CrearUsuarioRequest("operador", "secreto", RolUsuario.ADMIN);
@@ -65,6 +67,7 @@ class AuthControllerTest {
         var verificarMfa = mock(VerificarMfaUseCase.class);
         var facebook = mock(AutenticarConFacebookUseCase.class);
         var desvincularFacebook = mock(DesvincularFacebookUseCase.class);
+        var obtenerPerfil = mock(ObtenerPerfilUseCase.class);
         var loginTickets = mock(LoginTicketPort.class);
         var facebookProperties = mock(FacebookProperties.class);
         var controller = new AuthController(
@@ -74,6 +77,7 @@ class AuthControllerTest {
                 verificarMfa,
                 facebook,
                 desvincularFacebook,
+                obtenerPerfil,
                 loginTickets,
                 facebookProperties);
         var token = new TokenResponse("jwt", "Bearer", 3600);
