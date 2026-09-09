@@ -25,3 +25,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Variables locales y secretos (en cualquier carpeta)
+.env
+.env.*
+*.env
+!.env.example
