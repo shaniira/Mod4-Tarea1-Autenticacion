@@ -22,4 +22,5 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/andina-seguros-clean-1.0.0.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+# -Xmx fijo + ExitOnOutOfMemoryError: si el kill es por memoria, quede en el log en vez de morir en silencio
+ENTRYPOINT ["java", "-Xmx256m", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]
