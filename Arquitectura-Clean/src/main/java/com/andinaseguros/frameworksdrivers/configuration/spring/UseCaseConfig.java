@@ -84,9 +84,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.client.RestClient;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
 @EnableConfigurationProperties({JsonPeProperties.class, WhatsAppProperties.class, FacebookProperties.class})
+@EnableMongoRepositories(basePackages = {"com.andinaseguros.interfaceadapters.out.persistence.mongodb"})
 public class UseCaseConfig {
 
     @Bean
