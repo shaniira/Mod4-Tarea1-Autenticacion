@@ -11,12 +11,19 @@ import com.andinaseguros.usecases.port.out.repository.UsuarioRepository;
 import com.andinaseguros.usecases.port.out.security.AuthenticatedUser;
 import com.andinaseguros.usecases.port.out.security.SecretEncryptionPort;
 import com.andinaseguros.usecases.port.out.security.TokenGeneratorPort;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AutenticarConFacebookUseCase {
     private static final Logger log = LoggerFactory.getLogger(AutenticarConFacebookUseCase.class);
     private static final String FACEBOOK = "FACEBOOK";
+    // Algunos navegadores/proxies reenvían la misma redirección de OAuth casi al instante;
+    // este cache evita que el reintento falle por el state de un solo uso ya consumido.
+    private static final Duration VENTANA_DUPLICADOS = Duration.ofSeconds(30);
+    private final ConcurrentHashMap<String, ResultadoCacheado> resultadosRecientes = new ConcurrentHashMap<>();
     private final OAuthStatePort states;
     private final FacebookOAuthPort facebook;
     private final UsuarioRepository usuarios;
@@ -42,10 +49,18 @@ public class AutenticarConFacebookUseCase {
     }
 
     public TokenResponse callback(String code, String state) {
+        purgarExpirados();
+        if (state != null) {
+            ResultadoCacheado cacheado = resultadosRecientes.get(state);
+            if (cacheado != null && !cacheado.expirado()) {
+                log.info("Facebook callback: reutilizando resultado cacheado statePrefix={}", prefijo(state));
+                return cacheado.respuesta();
+            }
+        }
         boolean codeValido = code != null && !code.isBlank();
         boolean stateValido = codeValido && states.consume(state);
         log.info("Facebook callback: codePresente={} statePrefix={} stateConsumido={}",
-                codeValido, state == null ? "null" : state.substring(0, Math.min(8, state.length())), stateValido);
+                codeValido, prefijo(state), stateValido);
         if (!stateValido) {
             throw new ReglaNegocioException("FACEBOOK_CALLBACK_INVALIDO", "Respuesta de Facebook inválida");
         }
@@ -64,8 +79,26 @@ public class AutenticarConFacebookUseCase {
         if (!usuario.isActivo()) {
             throw new ReglaNegocioException("CREDENCIALES_INVALIDAS", "Credenciales inválidas");
         }
-        return new TokenResponse(tokens.generar(new AuthenticatedUser(usuario.getUsername(), usuario.getRol().name())),
+        TokenResponse respuesta = new TokenResponse(tokens.generar(new AuthenticatedUser(usuario.getUsername(), usuario.getRol().name())),
                 "Bearer", tokens.expirationSeconds());
+        if (state != null) {
+            resultadosRecientes.put(state, new ResultadoCacheado(respuesta, Instant.now().plus(VENTANA_DUPLICADOS)));
+        }
+        return respuesta;
+    }
+
+    private static String prefijo(String state) {
+        return state == null ? "null" : state.substring(0, Math.min(8, state.length()));
+    }
+
+    private void purgarExpirados() {
+        resultadosRecientes.values().removeIf(ResultadoCacheado::expirado);
+    }
+
+    private record ResultadoCacheado(TokenResponse respuesta, Instant expiraEn) {
+        boolean expirado() {
+            return Instant.now().isAfter(expiraEn);
+        }
     }
 
     private Usuario crearUsuario(FacebookOAuthPort.FacebookIdentity identity) {
