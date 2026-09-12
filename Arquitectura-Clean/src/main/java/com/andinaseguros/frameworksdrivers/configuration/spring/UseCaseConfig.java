@@ -53,7 +53,7 @@ import com.andinaseguros.interfaceadapters.out.event.*;
 import com.andinaseguros.interfaceadapters.out.external.jsonpe.*;
 import com.andinaseguros.interfaceadapters.out.external.facebook.*;
 import com.andinaseguros.interfaceadapters.out.id.UuidGeneratorAdapter;
-import com.andinaseguros.interfaceadapters.out.persistence.mongodb.OAuthStateRepository;
+import com.andinaseguros.interfaceadapters.out.persistence.mongodb.repository.OAuthStateRepository;
 import com.andinaseguros.interfaceadapters.out.notification.*;
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.adapter.ClienteContactMongoAdapter;
 import com.andinaseguros.interfaceadapters.out.security.*;
@@ -84,11 +84,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.client.RestClient;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
 @EnableConfigurationProperties({JsonPeProperties.class, WhatsAppProperties.class, FacebookProperties.class})
-@EnableMongoRepositories(basePackages = {"com.andinaseguros.interfaceadapters.out.persistence.mongodb"})
 public class UseCaseConfig {
 
     @Bean

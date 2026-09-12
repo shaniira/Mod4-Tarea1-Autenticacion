@@ -1,7 +1,7 @@
 package com.andinaseguros.interfaceadapters.out.external.facebook;
 
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.OAuthStateDocument;
-import com.andinaseguros.interfaceadapters.out.persistence.mongodb.OAuthStateRepository;
+import com.andinaseguros.interfaceadapters.out.persistence.mongodb.repository.OAuthStateRepository;
 import com.andinaseguros.usecases.port.out.facebook.OAuthStatePort;
 import java.security.SecureRandom;
 import java.time.Instant;
