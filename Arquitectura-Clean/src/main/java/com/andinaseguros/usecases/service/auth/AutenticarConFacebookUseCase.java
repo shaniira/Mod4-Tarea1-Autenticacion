@@ -11,8 +11,11 @@ import com.andinaseguros.usecases.port.out.repository.UsuarioRepository;
 import com.andinaseguros.usecases.port.out.security.AuthenticatedUser;
 import com.andinaseguros.usecases.port.out.security.SecretEncryptionPort;
 import com.andinaseguros.usecases.port.out.security.TokenGeneratorPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutenticarConFacebookUseCase {
+    private static final Logger log = LoggerFactory.getLogger(AutenticarConFacebookUseCase.class);
     private static final String FACEBOOK = "FACEBOOK";
     private final OAuthStatePort states;
     private final FacebookOAuthPort facebook;
@@ -37,7 +40,11 @@ public class AutenticarConFacebookUseCase {
     }
 
     public TokenResponse callback(String code, String state) {
-        if (code == null || code.isBlank() || !states.consume(state)) {
+        boolean codeValido = code != null && !code.isBlank();
+        boolean stateValido = codeValido && states.consume(state);
+        log.info("Facebook callback: codePresente={} stateLongitud={} stateConsumido={}",
+                codeValido, state == null ? 0 : state.length(), stateValido);
+        if (!stateValido) {
             throw new ReglaNegocioException("FACEBOOK_CALLBACK_INVALIDO", "Respuesta de Facebook inválida");
         }
         var identity = facebook.exchangeCode(code);
