@@ -53,6 +53,7 @@ import com.andinaseguros.interfaceadapters.out.event.*;
 import com.andinaseguros.interfaceadapters.out.external.jsonpe.*;
 import com.andinaseguros.interfaceadapters.out.external.facebook.*;
 import com.andinaseguros.interfaceadapters.out.id.UuidGeneratorAdapter;
+import com.andinaseguros.interfaceadapters.out.persistence.mongodb.OAuthStateRepository;
 import com.andinaseguros.interfaceadapters.out.notification.*;
 import com.andinaseguros.interfaceadapters.out.persistence.mongodb.adapter.ClienteContactMongoAdapter;
 import com.andinaseguros.interfaceadapters.out.security.*;
@@ -192,8 +193,8 @@ public class UseCaseConfig {
     }
 
     @Bean
-    OAuthStatePort oauthStatePort(FacebookProperties properties) {
-        return new InMemoryOAuthStateAdapter(properties.oauthStateTtlSeconds());
+    OAuthStatePort oauthStatePort(OAuthStateRepository repository, FacebookProperties properties) {
+        return new MongoDBOAuthStateAdapter(repository, properties.oauthStateTtlSeconds());
     }
 
     @Bean
