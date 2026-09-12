@@ -13,10 +13,10 @@ describe('facebookAuth urls', () => {
     expect(facebookSessionUrl()).toBe('https://backend.andina.pe/api/auth/facebook/session');
   });
 
-  it('usa localhost:8083 como valor por defecto en desarrollo', () => {
+  it('usa la API desplegada como valor por defecto', () => {
     vi.stubEnv('VITE_FACEBOOK_API_URL', '');
 
-    expect(facebookLoginUrl()).toBe('http://localhost:8083/api/auth/facebook');
-    expect(facebookSessionUrl()).toBe('http://localhost:8083/api/auth/facebook/session');
+    expect(facebookLoginUrl()).toBe('https://mod4-tarea1-autenticacion.onrender.com/api/auth/facebook');
+    expect(facebookSessionUrl()).toBe('https://mod4-tarea1-autenticacion.onrender.com/api/auth/facebook/session');
   });
 });

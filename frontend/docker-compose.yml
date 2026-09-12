@@ -3,8 +3,12 @@ services:
     build:
       context: .
       args:
+<<<<<<< HEAD
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8083/api}
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:?Falta VITE_GOOGLE_CLIENT_ID en frontend/.env}
+=======
+        VITE_API_URL: ${VITE_API_URL:-https://mod4-tarea1-autenticacion.onrender.com/api}
+>>>>>>> 8988c2f (aumento de ttl facebook)
     ports:
       - "5173:80"
     restart: unless-stopped

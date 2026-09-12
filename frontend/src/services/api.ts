@@ -47,7 +47,7 @@ const messagesByCode: Record<string, string> = {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8083/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://mod4-tarea1-autenticacion.onrender.com/api',
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' }
 });
