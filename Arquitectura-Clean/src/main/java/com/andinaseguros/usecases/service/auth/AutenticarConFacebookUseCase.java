@@ -36,14 +36,16 @@ public class AutenticarConFacebookUseCase {
     }
 
     public String iniciar() {
-        return facebook.authorizationUrl(states.create());
+        String state = states.create();
+        log.info("Facebook iniciar: statePrefix={}", state.substring(0, Math.min(8, state.length())));
+        return facebook.authorizationUrl(state);
     }
 
     public TokenResponse callback(String code, String state) {
         boolean codeValido = code != null && !code.isBlank();
         boolean stateValido = codeValido && states.consume(state);
-        log.info("Facebook callback: codePresente={} stateLongitud={} stateConsumido={}",
-                codeValido, state == null ? 0 : state.length(), stateValido);
+        log.info("Facebook callback: codePresente={} statePrefix={} stateConsumido={}",
+                codeValido, state == null ? "null" : state.substring(0, Math.min(8, state.length())), stateValido);
         if (!stateValido) {
             throw new ReglaNegocioException("FACEBOOK_CALLBACK_INVALIDO", "Respuesta de Facebook inválida");
         }
