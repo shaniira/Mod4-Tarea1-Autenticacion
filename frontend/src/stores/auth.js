@@ -15,10 +15,13 @@ export const useAuthStore = defineStore('auth', {
         token: localStorage.getItem('token') || '',
         role: (localStorage.getItem('role') || ''),
         username: localStorage.getItem('username') || '',
+        nombres: localStorage.getItem('nombres') || '',
+        apellidos: localStorage.getItem('apellidos') || '',
         mfaChallenge: sessionStorage.getItem('mfaChallenge') || ''
     }),
     getters: {
-        isAuthenticated: state => Boolean(state.token)
+        isAuthenticated: state => Boolean(state.token),
+        displayName: state => (state.nombres ? `${state.nombres} ${state.apellidos}`.trim() : state.username)
     },
     actions: {
         async login(username, password) {
@@ -28,27 +31,27 @@ export const useAuthStore = defineStore('auth', {
                 sessionStorage.setItem('mfaChallenge', data.challengeToken);
                 return false;
             }
-            this.setSession(data.token.token, username);
+            await this.setSession(data.token.token, username);
             return true;
         },
         async loginWithGoogle(idToken) {
             const { data } = await api.post('/auth/google', { idToken });
-            this.setSession(data.token, parseJwt(data.token).sub || '');
+            await this.setSession(data.token, parseJwt(data.token).sub || '');
             return true;
         },
         // El backend ya validó code/state con Facebook; el ticket temporal solo se canjea una vez por el JWT interno.
         async exchangeFacebookTicket(ticket) {
             const { data } = await api.post(facebookSessionUrl(), null, { params: { ticket } });
-            this.setSession(data.token, parseJwt(data.token).sub || '');
+            await this.setSession(data.token, parseJwt(data.token).sub || '');
             return true;
         },
         async verifyMfa(codigo) {
             const { data } = await api.post('/auth/mfa/verificar', { challengeToken: this.mfaChallenge, codigo });
-            this.setSession(data.token, parseJwt(data.token).sub || '');
+            await this.setSession(data.token, parseJwt(data.token).sub || '');
             this.mfaChallenge = '';
             sessionStorage.removeItem('mfaChallenge');
         },
-        setSession(token, username) {
+        async setSession(token, username) {
             const payload = parseJwt(token);
             this.token = token;
             this.role = (payload.rol || payload.role || payload.roles?.[0]?.replace('ROLE_', '') || '');
@@ -56,14 +59,31 @@ export const useAuthStore = defineStore('auth', {
             localStorage.setItem('token', this.token);
             localStorage.setItem('role', this.role);
             localStorage.setItem('username', username);
+            await this.fetchPerfil();
+        },
+        async fetchPerfil() {
+            try {
+                const { data } = await api.get('/auth/me');
+                this.nombres = data.nombres || '';
+                this.apellidos = data.apellidos || '';
+                localStorage.setItem('nombres', this.nombres);
+                localStorage.setItem('apellidos', this.apellidos);
+            }
+            catch {
+                // El nombre es solo informativo: si falla, la sesión sigue funcionando con el username.
+            }
         },
         logout() {
             this.token = '';
             this.role = '';
             this.username = '';
+            this.nombres = '';
+            this.apellidos = '';
             localStorage.removeItem('token');
             localStorage.removeItem('role');
             localStorage.removeItem('username');
+            localStorage.removeItem('nombres');
+            localStorage.removeItem('apellidos');
             this.mfaChallenge = '';
             sessionStorage.removeItem('mfaChallenge');
         }

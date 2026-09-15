@@ -52,8 +52,9 @@ onMounted(() => {
 });
 onMounted(() => { let intentos = 0; const timer = setInterval(() => { const google = window.google; if (google) {
     clearInterval(timer);
+    const contenedor = document.getElementById('google-btn');
     google.accounts.id.initialize({ client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID, callback: onGoogleCredential });
-    google.accounts.id.renderButton(document.getElementById('google-btn'), { theme: 'outline', size: 'large', width: 320, text: 'continue_with' });
+    google.accounts.id.renderButton(contenedor, { theme: 'outline', size: 'large', shape: 'pill', width: contenedor?.parentElement?.offsetWidth || 320, text: 'continue_with', logo_alignment: 'center' });
 }
 else if (++intentos > 50) {
     clearInterval(timer);
@@ -124,14 +125,23 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElement
     disabled: (__VLS_ctx.loading),
 });
 (__VLS_ctx.loading ? 'Ingresando…' : 'Iniciar sesión');
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "google-divider" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
     ...{ onClick: (__VLS_ctx.onFacebookLogin) },
     type: "button",
     ...{ class: "fb-btn" },
     disabled: (__VLS_ctx.loading),
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "google-divider" },
+__VLS_asFunctionalElement(__VLS_intrinsicElements.svg, __VLS_intrinsicElements.svg)({
+    viewBox: "0 0 24 24",
+    'aria-hidden': "true",
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.path)({
+    fill: "#1877F2",
+    d: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -150,8 +160,8 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.small, __VLS_intrinsicElements
 /** @type {__VLS_StyleScopedClasses['error']} */ ;
 /** @type {__VLS_StyleScopedClasses['primary']} */ ;
 /** @type {__VLS_StyleScopedClasses['wide']} */ ;
-/** @type {__VLS_StyleScopedClasses['fb-btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['google-divider']} */ ;
+/** @type {__VLS_StyleScopedClasses['fb-btn']} */ ;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {

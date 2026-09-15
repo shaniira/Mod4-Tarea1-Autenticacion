@@ -35,7 +35,7 @@ const messagesByCode = {
     ERROR_INTERNO: 'No pudimos completar la operación. Inténtalo nuevamente.'
 };
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://mod4-tarea1-autenticacion.onrender.com/api',
+    baseURL: import.meta.env.VITE_API_URL || 'https://mod4-tarea1-autenticacion-4xs0.onrender.com/api',
     timeout: 15000,
     headers: { 'Content-Type': 'application/json' }
 });

@@ -16,7 +16,7 @@ describe('facebookAuth urls', () => {
   it('usa la API desplegada como valor por defecto', () => {
     vi.stubEnv('VITE_FACEBOOK_API_URL', '');
 
-    expect(facebookLoginUrl()).toBe('https://mod4-tarea1-autenticacion.onrender.com/api/auth/facebook');
-    expect(facebookSessionUrl()).toBe('https://mod4-tarea1-autenticacion.onrender.com/api/auth/facebook/session');
+    expect(facebookLoginUrl()).toBe('https://mod4-tarea1-autenticacion-4xs0.onrender.com/api/auth/facebook');
+    expect(facebookSessionUrl()).toBe('https://mod4-tarea1-autenticacion-4xs0.onrender.com/api/auth/facebook/session');
   });
 });
